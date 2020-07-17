@@ -228,12 +228,12 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
             posit[[k]] <- thrids[sol$posit[inds]] - 1
             sgn[[k]] <- thrsgn[i] * sol$sgn[inds]
         }
-        knots <- .Internal(unlist(knots, F, F))
+        knots <- unlist(knots, F, F)
         if (length(knots) > 0){
             ord <- order(knots)
-            hyp <- .Internal(unlist(hyp, F, F))[ord]
-            posit <- .Internal(unlist(posit, F, F))[ord]
-            sgn <- .Internal(unlist(sgn, F, F))[ord]
+            hyp <- unlist(hyp, F, F)[ord]
+            posit <- unlist(posit, F, F)[ord]
+            sgn <- unlist(sgn, F, F)[ord]
             knots <- knots[ord]
         } else {
             hyp <- posit <- sgn <- numeric(0)

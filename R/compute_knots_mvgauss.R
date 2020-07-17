@@ -162,11 +162,11 @@ compute_knots_mvgauss <- function(zstat, zminus, cor,
             posit[[k]] <- thrids[sol$posit] - 1  # which threshold crossed (R->C++ indexing)
             sgn[[k]] <- thrsgn[i] * sol$sgn      # up- or down-crossing (is that quite right?)
         }
-        knots <- .Internal(unlist(knots, F, F))
+        knots <- unlist(knots, F, F)
         ord <- order(knots)             # This takes a long time too but is harder to get around
-        hyp <- .Internal(unlist(hyp, F, F))[ord]
-        posit <- .Internal(unlist(posit, F, F))[ord]
-        sgn <- .Internal(unlist(sgn, F, F))[ord]
+        hyp <- unlist(hyp, F, F)[ord]
+        posit <- unlist(posit, F, F)[ord]
+        sgn <- unlist(sgn, F, F)[ord]
         knots <- knots[ord]
 
         res[[tail]] <- list(knots = knots,
