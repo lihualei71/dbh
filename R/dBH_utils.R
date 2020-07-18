@@ -215,4 +215,3 @@ lm_mvt <- function(y, X, subset){
     list(tvals = tvals[subset], df = df,
          Sigma = Sigma[subset, subset])
 }
-

@@ -1,3 +1,155 @@
+#' The dependence-adjusted Benjamini-Hochberg (BH) procedure and general step-up procedures for multivariate t-statistics
+#'
+#' \code{dBH_mvt} computes the rejection set of \eqn{dBH_\gamma(\alpha)} and \eqn{dBH_\gamma(\alpha)^2}, as well as
+#' \eqn{dSU_{\gamma, \Delta}(\alpha)} and \eqn{dSU_{\gamma, \Delta}(\alpha)^2} a broad class of step-up procedures for
+#' multivariate t-statistics \eqn{t = (t_1, \ldots, t_m)} where \eqn{t_i = z_i / \hat{\sigma}}, \eqn{z\sim N(\mu, \Sigma)}, and \eqn{\hat{\sigma}^2 \times \text{df}\sim \chi^2(\text{df})}. \code{dBH_mvt} can handle both one-sided tests
+#' \eqn{H_i: \mu_i \le 0} or \eqn{H_i: \mu_i \ge 0}, and two-sided tests \eqn{H_i: \mu_i = 0}.
+#'
+#' @details \code{dBH_mvt} supports two types of inputs for the covariance matrix.
+#' \itemize{
+#' \item When the covariance matrix fits into the memory, it can be inputted through \code{Sigma}. The diagonals do not
+#' have to be 1. In this case, \code{Sigmafun} and \code{vars} should be left as their default;
+#' \item When the covariance matrix does not fit into the memory, it can be inputted through \code{Sigmafun} and
+#' \code{vars}. \code{Sigmafun} should be a function with a single input \code{i} that gives the row index and a vector output \eqn{\Sigma_{i, }/\Sigma_{i, i}} where \eqn{\Sigma_{i, }} is the i-th row of \eqn{\Sigma}. The
+#' marginal variances \eqn{(\Sigma_{1, 1}, \ldots, \Sigma_{m, m})} are inputted through \code{vars}. If all marginal
+#' variances are 1, \code{vars} can be left as its default.
+#' }
+#'
+#' \code{dBH_mvt} can handle all dSU procedures that are defined in Appendix C.1. with
+#' \deqn{\Delta_{\alpha}(r) = \frac{\alpha a_{\ell}}{m}, r\in [a_{\ell}, a_{\ell + 1}), \ell = 0, 1, \ldots, L}
+#' There are two-ways to input the a-values.
+#' \itemize{
+#' \item (Recommended) use \code{avals_type} while leave \code{avals} as its default. Three types of \code{avals_type}
+#' are supported.
+#'     \itemize{
+#'     \item When \code{avals_type = "BH"}, the BH procedure is used (i.e. \eqn{a_\ell = \ell, \ell = 1, \ldots, m});
+#'     \item When \code{avals_type = "geom"}, the geometrically increasing a-values that are defined in Appendix C.1.
+#' are used with the growing rate specified by \code{geom_fac}, whose default is 2;
+#'     \item When \code{avals_type = "bonf"}, the Bonferroni procedure is used (i.e. \eqn{a_1 = 1, L = 1}).
+#'     }
+#' \item (Not recommended) use \code{avals} while set \code{avals_type = "manual"}. This option allows any set of
+#' increasing a-values. However, it can be much slower than the recommended approach.
+#' }
+#' 
+#' @param tvals a vector of t-values. The marginal variances of the corresponding z-values do not have to be 1.
+#' @param df the degree-of-freedom. 
+#' @param Sigma the covariance matrix. For very large m, it is preferable to use \code{Sigmafun} while leave
+#' \code{Sigma = NULL} as its default. See Details.
+#' @param Sigmafun the function that takes the row index as the input and outputs the i-th row of the covariance matrix
+#' divided by \eqn{\Sigma_{i, i}}. This is an alternative for \code{Sigma} when m is very large. See Details.
+#' @param vars the vector of marginal variances \eqn{(\sigma_1^2, \ldots, \sigma_m^2)}. Used only with \code{Sigmafun}.
+#' See Details.
+#' @param side a string that takes values in \{"right", "left", "two"\}, with "right" for one-sided tests
+#' \eqn{H_i: \mu_i \le 0}, "left" for one-sided tests, \eqn{H_i: \mu_i \ge 0}, and "two" for two-sided tests
+#' \eqn{H_i: \mu_i = 0}.
+#' @param alpha the target FDR level.
+#' @param gamma the parameter for the dBH and dSU procedures. The default is \code{NULL}, which gives dBY or the safe
+#' dSU with gamma = 1 / Lm defined in Appendix C.1.
+#' @param niter the number of iterations. In the current version it can only be 1, for dBH/dSU, or 2, for
+#' \eqn{dBH^2}/\eqn{dSU^2}.
+#' @param tautype the type of tau function. In the current version, only "QC" (q-value-calibration) is supported with
+#' \eqn{\tau(c; X) = cR_{BH}(c) / m}.
+#' @param avals the a-values in the step-up procedures defined in Appendix C.1. The default is NULL, in which case
+#' \code{avals} is determined by \code{avals_type}. See Details.
+#' @param avals_type a string that takes values in \{"BH", "geom", "bonf", "manual"\}, which determines the type of
+#' thresholds in the step-up procedures. See Details.
+#' @param geom_fac a real number that is larger than 1. This is the growing rate of thresholds when
+#' \code{avals_type = "geom"}. See Details.
+#' @param eps a real number in [0, 1], which is used to determine \eqn{t_{hi}} discussed in Section 4.2.
+#' @param qcap a real number that is larger than 1. It is used to filter out hypotheses with q-values above
+#' \code{qcap} X \code{alpha}, as discussed in Appendix C.2.2.
+#' @param gridsize an integer for the size of the grid used when \code{niter = 2}. For two-sided tests, \code{gridsize}
+#' knots will be used for both the positive and negative sides.
+#' @param exptcap a real number in [0, 1]. It is used by \eqn{dBH^2}/\eqn{dSU^2} to filter out hypotheses with
+#' \eqn{g_i*(q_i | S_i)} below \code{exptcap} X \code{alpha} / m in their initializations, as discussed in Appendix C.2.5.
+#' @param is_safe a logical or NULL indicating whether the procedure is taken as safe. DON'T set \code{is_safe = TRUE}
+#' unless the covariance structure is known to be CPRDS. The default is \code{NULL}, which sets \code{is_safe = TRUE}
+#' if \code{gamma = NULL} or \code{gamma} is below 1 / Lm, and \code{is_safe = FALSE} otherwise.
+#' @param verbose a logical indicating whether a progress bar is shown.
+#'
+#' @return a list with the following attributes
+#' \itemize{
+#' \item \code{rejs}: the indices of rejected hypotheses (after the randomized pruning step if any);
+#' \item \code{initrejs}: the indices of rejected hypotheses (before the randomized pruning step if any);
+#' \item \code{cand}: the set of candidate hypotheses for which \eqn{g_i^*(q_i | S_i)} is evaluated;
+#' \item \code{expt}: \eqn{g_i^*(q_i | S_i)} for each hypothesis in \code{cand};
+#' \item \code{safe}: TRUE iff the procedure is safe;
+#' \item \code{secBH}: TRUE iff the randomzied pruning step (a.k.a. the secondary BH procedure) is invoked;
+#' \item \code{secBH_fac}: a vector that gives \eqn{\hat{R}_i / R_{+}} that is defined in Section 2.2. It only shows up
+#' in the output if \code{secBH = TRUE}.
+#' }
+#'
+#' @seealso
+#' \code{\link{dBH_mvgauss}}, \code{\link{dBH_lm}}
+#' 
+#' @examples
+#' \donttest{# Generate mu and Sigma for an AR process
+#' n <- 100
+#' rho <- 0.8
+#' Sigma <- rho^(abs(outer(1:n, 1:n, "-")))
+#' mu1 <- 2.5
+#' nalt <- 10
+#' mu <- c(rep(mu1, nalt), rep(0, n - nalt))
+#'
+#' # Generate the z-values
+#' set.seed(1)
+#' zvals <- rep(NA, n)
+#' zvals[1] <- rnorm(1)
+#' for (i in 2:n){
+#'     zvals[i] <- zvals[i - 1] * rho + rnorm(1) * sqrt(1 - rho^2)
+#' }
+#' zvals <- zvals + mu
+#'
+#' # Generate sigmahat and the t-values
+#' df <- 50
+#' sigmahat <- sqrt(rchisq(1, df = df) / df)
+#' tvals <- zvals / sigmahat
+#'
+#' # Run dBH_1(\alpha) for one-sided tests
+#' alpha <- 0.05
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = 1, niter = 1, avals_type = "BH")
+#' 
+#' # Run dBH_1(\alpha) for two-sided tests
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = 1, niter = 1, avals_type = "BH") 
+#'
+#' # Run dBH^2_1(\alpha) for one-sided tests
+#' alpha <- 0.05
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = 1, niter = 2, avals_type = "BH")
+#' 
+#' # Run dBH^2_1(\alpha) for one-sided tests
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = 1, niter = 2, avals_type = "BH")
+#' 
+#' # Run dSU_1(\alpha) with the geometrically increasing a-values for one-sided tests
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = 1, niter = 1, avals_type = "geom",
+#'                geom_fac = 2)
+#'
+#' # Run dBY(\alpha) for one-sided tests
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = NULL, niter = 1, avals_type = "BH")
+#'
+#' # Run dBY^2(\alpha) for one-sided tests
+#' res <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                alpha = alpha, gamma = NULL, niter = 2, avals_type = "BH")
+#'
+#' # Input the covariance matrix through \code{Sigmafun}
+#' Sigmafun <- function(i){
+#'    rho^(abs(1:n - i))
+#'}
+#' vars <- rep(1, n)
+#' res1 <- dBH_mvt(tvals = tvals, df = df, Sigmafun = Sigmafun, vars = vars,
+#'                 side = "right", alpha = alpha, gamma = NULL, niter = 1,
+#'                 avals_type = "BH")
+#' res2 <- dBH_mvt(tvals = tvals, df = df, Sigma = Sigma, side = "right",
+#'                 alpha = alpha, gamma = NULL, niter = 1, avals_type = "BH")
+#' identical(res1, res2)
+#' 
+#' }
+#' 
 #' @export
 dBH_mvt <- function(tvals, df,
                     Sigma = NULL,
