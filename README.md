@@ -3,6 +3,7 @@
 An R package for the dependent-adjusted Benjamini-Hochberg and step-up procedures
 
 <!-- badges: start -->
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/lihualei71/dbh?branch=master&svg=true)](https://ci.appveyor.com/project/lihualei71/dbh)
 <!-- badges: end -->
 
 ## Overview
