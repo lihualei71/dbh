@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Lihua Lei [aut, cre], William Fithian [ctb]
 Maintainer: Lihua Lei <lihualei@stanford.edu>
 Description: Implementation of the dependent-adjusted Benjamini-Hochberg procedure, 
-    Benjamini-Yekutieli procedure, and general step-up procedures for parametric 
+    Benjamini-Yekutieli procedure, and step-up procedures for parametric 
     and non-parametric multiple testing problems with exact false discovery rate 
     control. 
 License: MIT + file LICENSE
