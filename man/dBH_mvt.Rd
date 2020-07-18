@@ -2,7 +2,7 @@
 % Please edit documentation in R/dBH_mvt.R
 \name{dBH_mvt}
 \alias{dBH_mvt}
-\title{The dependence-adjusted Benjamini-Hochberg (BH) procedure and general step-up procedures for multivariate t-statistics}
+\title{The dependence-adjusted Benjamini-Hochberg (BH) procedure and step-up procedures for multivariate t-statistics}
 \usage{
 dBH_mvt(
   tvals,
@@ -86,8 +86,8 @@ a list with the following attributes
 \itemize{
 \item \code{rejs}: the indices of rejected hypotheses (after the randomized pruning step if any);
 \item \code{initrejs}: the indices of rejected hypotheses (before the randomized pruning step if any);
-\item \code{cand}: the set of candidate hypotheses for which \eqn{g_i^*(q_i | S_i)} is evaluated;
-\item \code{expt}: \eqn{g_i^*(q_i | S_i)} for each hypothesis in \code{cand};
+\item \code{cand}: the set of candidate hypotheses for which \eqn{g_i^{*}(q_i | S_i)} is evaluated;
+\item \code{expt}: \eqn{g_i^{*}(q_i | S_i)} for each hypothesis in \code{cand};
 \item \code{safe}: TRUE iff the procedure is safe;
 \item \code{secBH}: TRUE iff the randomzied pruning step (a.k.a. the secondary BH procedure) is invoked;
 \item \code{secBH_fac}: a vector that gives \eqn{\hat{R}_i / R_{+}} that is defined in Section 2.2. It only shows up
@@ -95,9 +95,9 @@ in the output if \code{secBH = TRUE}.
 }
 }
 \description{
-\code{dBH_mvt} computes the rejection set of \eqn{dBH_\gamma(\alpha)} and \eqn{dBH_\gamma(\alpha)^2}, as well as
-\eqn{dSU_{\gamma, \Delta}(\alpha)} and \eqn{dSU_{\gamma, \Delta}(\alpha)^2} a broad class of step-up procedures for
-multivariate t-statistics \eqn{t = (t_1, \ldots, t_m)} where \eqn{t_i = z_i / \hat{\sigma}}, \eqn{z\sim N(\mu, \Sigma)}, and \eqn{\hat{\sigma}^2 \times \text{df}\sim \chi^2(\text{df})}. \code{dBH_mvt} can handle both one-sided tests
+\code{dBH_mvt} computes the rejection set of \eqn{dBH_\gamma(\alpha)} and \eqn{dBH^2_\gamma(\alpha)}, as well as
+\eqn{dSU_{\gamma, \Delta}(\alpha)} and \eqn{dSU^2_{\gamma, \Delta}(\alpha)} a broad class of step-up procedures for
+multivariate t-statistics \eqn{t = (t_1, \ldots, t_m)} where \eqn{t_i = z_i / \hat{\sigma}}, \eqn{z\sim N(\mu, \Sigma)}, and \eqn{\hat{\sigma}^2 \times df\sim \chi^2(df)}. \code{dBH_mvt} can handle both one-sided tests
 \eqn{H_i: \mu_i \le 0} or \eqn{H_i: \mu_i \ge 0}, and two-sided tests \eqn{H_i: \mu_i = 0}.
 }
 \details{
@@ -113,7 +113,7 @@ variances are 1, \code{vars} can be left as its default.
 
 \code{dBH_mvt} can handle all dSU procedures that are defined in Appendix C.1. with
 \deqn{\Delta_{\alpha}(r) = \frac{\alpha a_{\ell}}{m}, r\in [a_{\ell}, a_{\ell + 1}), \ell = 0, 1, \ldots, L}
-There are two-ways to input the a-values.
+for any set of integer a-values \eqn{1\le a_1 < \ldots < a_L\le m} (with \eqn{a_0 = 0, a_{L+1} = m+1}). There are two-ways to input the a-values.
 \itemize{
 \item (Recommended) use \code{avals_type} while leave \code{avals} as its default. Three types of \code{avals_type}
 are supported.
