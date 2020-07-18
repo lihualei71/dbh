@@ -10,7 +10,8 @@ dBH_mvt_qc_grid <- function(tvals, df,
                             eps = 0.05,
                             qcap = 2,
                             gridsize = 20,
-                            exptcap = 0.9){
+                            exptcap = 0.9,
+                            verbose = FALSE){
     n <- length(tvals)
     ntails <- ifelse(side == "two", 2, 1)    
     high <- qt(alpha * eps / n / ntails, df = df, lower.tail = FALSE)
@@ -26,7 +27,8 @@ dBH_mvt_qc_grid <- function(tvals, df,
                         avals_type = avals_type,
                         geom_fac = geom_fac,
                         eps = eps,
-                        qcap = qcap)
+                        qcap = qcap,
+                        verbose = FALSE)
     params <- c(params_root, list(tvals = tvals))
     res_init <- do.call(dBH_mvt_qc, params)
     Rinit <- rep(length(res_init$initrejs) + 1, n)
@@ -53,7 +55,12 @@ dBH_mvt_qc_grid <- function(tvals, df,
                     secBH = FALSE))
     }
 
-    cand_info <- sapply(cand, function(i){
+    if (verbose){
+        pb <- txtProgressBar(style=3)
+    }
+    ncands <- length(cand)
+    cand_info <- sapply(1:ncands, function(id){
+        i <- cand[id]
         low <- qt(qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
@@ -132,13 +139,20 @@ dBH_mvt_qc_grid <- function(tvals, df,
         
         ## Add extra knots
         nknots <- ceiling(prob / sum(prob) * gridsize * ntails)
-        grids <- lapply(1:length(grids), function(i){
-            seq(grids[[i]][1], grids[[i]][2],
-                length.out = nknots[i] + 1)
+        grids <- lapply(1:length(grids), function(k){
+            seq(grids[[k]][1], grids[[k]][2],
+                length.out = nknots[k] + 1)
         })
 
+        if (verbose){
+            cumsum_nknots <- cumsum(nknots)
+            sum_nknots <- tail(cumsum_nknots, 1)
+            cumsum_nknots <- c(0, head(cumsum_nknots, -1))
+        }
+        
         ## Create grid for the denominator
-        expt <- sapply(grids, function(grid){
+        expt <- sapply(1:length(grids), function(k){
+            grid <- grids[[k]]
             prob <- diff(pt(grid, df = df))
             ex <- sapply(1:(length(grid) - 1), function(j){
                 pr <- prob[j]
@@ -155,6 +169,10 @@ dBH_mvt_qc_grid <- function(tvals, df,
                 params <- c(params_root, list(tvals = tvals_tmp))
                 res <- do.call(dBH_mvt_qc, params)
                 nrejs <- length(res$initrejs) + !(i %in% res$initrejs)
+                if (verbose){
+                    tmp <- id - 1 + (j + cumsum_nknots[k]) / sum_nknots 
+                    setTxtProgressBar(pb, tmp / ncands)
+                }
                 return(pr / nrejs)
             })
             sum(ex)
@@ -164,6 +182,10 @@ dBH_mvt_qc_grid <- function(tvals, df,
         return(c(ifrej, expt))
     })
 
+    if (verbose){
+        cat("\n")
+    }
+    
     ifrej <- as.logical(cand_info[1, ])
     rejlist <- which(ifrej)
     rejlist <- c(init_rejlist, cand[rejlist])

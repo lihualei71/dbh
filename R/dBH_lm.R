@@ -12,7 +12,8 @@ dBH_lm <- function(y, X,
                    qcap = TRUE,
                    gridsize = 20,
                    exptcap = 0.9,
-                   is_safe = NULL){
+                   is_safe = NULL,
+                   verbose = verbose){
     stats <- lm_mvt(y, X, subset)
     dBH_mvt(tvals = stats$tvals, 
             df = stats$df,
@@ -31,5 +32,6 @@ dBH_lm <- function(y, X,
             qcap = qcap,
             gridsize = gridsize,
             exptcap = exptcap,
-            is_safe = is_safe)
+            is_safe = is_safe,
+            verbose = verbose)
 }

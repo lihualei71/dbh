@@ -14,7 +14,8 @@ dBH_mvgauss <- function(zvals,
                         qcap = 2,
                         gridsize = 20,
                         exptcap = 0.9,
-                        is_safe = NULL){
+                        is_safe = NULL,
+                        verbose = FALSE){
     if (niter > 2){
         stop("\'niter\' can only be 1 or 2.")
     }
@@ -81,7 +82,8 @@ dBH_mvgauss <- function(zvals,
                            avals_type = avals_type,
                            geom_fac = geom_fac,
                            eps = eps,
-                           qcap = qcap)
+                           qcap = qcap,
+                           verbose = verbose)
         }
     } else if (niter == 2){
         if (tautype == "QC"){
@@ -98,7 +100,8 @@ dBH_mvgauss <- function(zvals,
                                 eps = eps,
                                 qcap = qcap,
                                 gridsize = gridsize,
-                                exptcap = exptcap)
+                                exptcap = exptcap,
+                                verbose = verbose)
         }
     }
 }

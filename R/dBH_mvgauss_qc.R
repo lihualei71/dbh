@@ -8,7 +8,8 @@ dBH_mvgauss_qc <- function(zvals,
                            avals_type = c("BH", "geom", "bonf", "manual"),
                            geom_fac = 2,
                            eps = 0.05,
-                           qcap = 2){
+                           qcap = 2,
+                           verbose = FALSE){
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)    
@@ -27,7 +28,12 @@ dBH_mvgauss_qc <- function(zvals,
                     secBH = FALSE))
     }
 
-    cand_info <- sapply(obj$cand, function(i){
+    if (verbose){
+        pb <- txtProgressBar(style=3)
+    }
+    ncands <- length(obj$cand)
+    cand_info <- sapply(1:ncands, function(id){
+        i <- obj$cand[id]
         low <- qnorm(qvals[i] * max(avals) / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
@@ -139,9 +145,18 @@ dBH_mvgauss_qc <- function(zvals,
         })
         expt <- sum(expt) * n
         ifrej <- expt <= alpha
-        return(c(ifrej, expt))        
+
+        if (verbose){
+            setTxtProgressBar(pb, id / ncands)
+        }
+        
+        return(c(ifrej, expt))
     })
 
+    if (verbose){
+        cat("\n")
+    }
+    
     ifrej <- as.logical(cand_info[1, ])
     rejlist <- which(ifrej)
     rejlist <- c(obj$init_rejlist, obj$cand[rejlist])
