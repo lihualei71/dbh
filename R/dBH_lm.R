@@ -7,10 +7,7 @@
 #' components drawn from \eqn{N(0, \sigma^2)} for some unknonw variance \eqn{\sigma^2}. \code{dBH_lm} can handle
 #' both one-sided tests \eqn{H_i: \beta_i \le 0} or \eqn{H_i: \beta_i \ge 0}, and two-sided tests \eqn{H_i: \beta_i = 0}.
 #'
-#' @details If an intercept term needs to be included, it should be added into \code{X}. If it is not tested, it can be
-#' excluded through \code{subset}.
-#'
-#' \code{dBH_lm} can handle all dSU procedures that are defined in Appendix C.1. with
+#' @details \code{dBH_lm} can handle all dSU procedures that are defined in Appendix C.1. with
 #' \deqn{\Delta_{\alpha}(r) = \frac{\alpha a_{\ell}}{m}, r\in [a_{\ell}, a_{\ell + 1}), \ell = 0, 1, \ldots, L}
 #' for any set of integer a-values \eqn{1\le a_1 < \ldots < a_L\le m} (with \eqn{a_0 = 0, a_{L+1} = m+1}). There are two-ways to input the a-values.
 #' \itemize{
@@ -29,7 +26,10 @@
 #' @param y the outcome vector.
 #' @param X the design matrix. The intercept term should be added manually into \code{X} to be included. See Details.
 #' @param subset a subset of \code{1:ncol(X)}, which specifies the subset of coefficients to be tested. The default is
-#' \code{1:ncol(X)}, which tests all coefficients. 
+#' \code{1:ncol(X)}, which tests all coefficients.
+#' @param intercept a logical indicating whether an intercept is included in the linear regression. By default,
+#' the intercept term is not tested. If it needs to be tested together with other variables, manually add it into
+#' \code{X} and set \code{intercept = FALSE}.
 #' @param side a string that takes values in \{"right", "left", "two"\}, with "right" for one-sided tests
 #' \eqn{H_i: \mu_i \le 0}, "left" for one-sided tests, \eqn{H_i: \mu_i \ge 0}, and "two" for two-sided tests
 #' \eqn{H_i: \mu_i = 0}.
@@ -122,6 +122,7 @@
 #' @export
 dBH_lm <- function(y, X,
                    subset = 1:ncol(X),
+                   intercept = TRUE,
                    side = c("right", "left", "two"),
                    alpha = 0.05, gamma = NULL,
                    tautype = "QC",
@@ -135,7 +136,7 @@ dBH_lm <- function(y, X,
                    exptcap = 0.9,
                    is_safe = NULL,
                    verbose = FALSE){
-    stats <- lm_mvt(y, X, subset)
+    stats <- lm_mvt(y, X, subset, intercept)
     dBH_mvt(tvals = stats$tvals, 
             df = stats$df,
             Sigma = stats$Sigma,

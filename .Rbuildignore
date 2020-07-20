@@ -3,3 +3,5 @@
 ^LICENSE\.md$
 ^appveyor\.yml$
 ^\.github$
+docs/*
+^_pkgdown.yml$

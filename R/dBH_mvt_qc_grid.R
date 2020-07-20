@@ -43,7 +43,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
             init_rejlist <- union(cand[res_init$expt <= exptcap * alpha], init_rejlist)
         }
     }
-    cand <- setdiff(cand, init_rejlist)    
+    cand <- setdiff(cand, init_rejlist)
 
     if (length(cand) == 0){
         return(list(rejs = init_rejlist,

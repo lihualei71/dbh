@@ -203,8 +203,11 @@ lingrid <- function(low, high, gridsize, side){
     return(grid)
 }
 
-lm_mvt <- function(y, X, subset){
-    n <- nrow(X)
+lm_mvt <- function(y, X, subset, intercept){
+    n <- nrow(X)    
+    if (intercept){
+        X <- cbind(X, rep(1, n))
+    }
     p <- ncol(X)
     df <- n - p
     fit <- lm(y ~ X + 0)
