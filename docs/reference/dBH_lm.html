@@ -124,6 +124,7 @@ both one-sided tests \(H_i: \beta_i \le 0\) or \(H_i: \beta_i \ge 0\), and two-s
   <span class='no'>y</span>,
   <span class='no'>X</span>,
   <span class='kw'>subset</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='no'>X</span>),
+  <span class='kw'>intercept</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>side</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"right"</span>, <span class='st'>"left"</span>, <span class='st'>"two"</span>),
   <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
   <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -155,6 +156,12 @@ both one-sided tests \(H_i: \beta_i \le 0\) or \(H_i: \beta_i \ge 0\), and two-s
       <th>subset</th>
       <td><p>a subset of <code>1:ncol(X)</code>, which specifies the subset of coefficients to be tested. The default is
 <code>1:ncol(X)</code>, which tests all coefficients.</p></td>
+    </tr>
+    <tr>
+      <th>intercept</th>
+      <td><p>a logical indicating whether an intercept is included in the linear regression. By default,
+the intercept term is not tested. If it needs to be tested together with other variables, manually add it into
+<code>X</code> and set <code>intercept = FALSE</code>.</p></td>
     </tr>
     <tr>
       <th>side</th>
@@ -242,9 +249,7 @@ in the output if <code>secBH = TRUE</code>.</p></li>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>If an intercept term needs to be included, it should be added into <code>X</code>. If it is not tested, it can be
-excluded through <code>subset</code>.</p>
-<p><code>dBH_lm</code> can handle all dSU procedures that are defined in Appendix C.1. with
+    <p><code>dBH_lm</code> can handle all dSU procedures that are defined in Appendix C.1. with
 $$\Delta_{\alpha}(r) = \frac{\alpha a_{\ell}}{m}, r\in [a_{\ell}, a_{\ell + 1}), \ell = 0, 1, \ldots, L$$
 for any set of integer a-values \(1\le a_1 &lt; \ldots &lt; a_L\le m\) (with \(a_0 = 0, a_{L+1} = m+1\)). There are two-ways to input the a-values.</p><ul>
 <li><p>(Recommended) use <code>avals_type</code> while leave <code>avals</code> as its default. Three types of <code>avals_type</code>
