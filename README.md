@@ -7,7 +7,7 @@ An R package for the dependent-adjusted Benjamini-Hochberg and step-up procedure
 
 ## Overview
 
-This R package implements the dependent-adjusted Benjamini-Hochberg procedure, Benjamini-Yekutieli procedure, and step-up procedures for parametric and non-parametric multiple testing problems with exact false discovery rate control. The procedures are proposed in our paper: [Conditional calibration for false discovery rate control under dependence](https://arxiv.org/abs/). The current version supports one- and two-sided tests on  multivariate z-statistics (`dBH_mvgauss`), multivariate t-statistis (`dBH_mvt`), and fixed-design homoscedastic Gaussian linear models (`dBH_lm`). The procedures for other problems will be added in the future versions.
+This R package implements the dependent-adjusted Benjamini-Hochberg procedure, Benjamini-Yekutieli procedure, and step-up procedures for parametric and non-parametric multiple testing problems with exact false discovery rate control. The procedures are proposed in our paper: [Conditional calibration for false discovery rate control under dependence](https://arxiv.org/abs/2007.10438). The current version supports one- and two-sided tests on  multivariate z-statistics (`dBH_mvgauss`), multivariate t-statistis (`dBH_mvt`), and fixed-design homoscedastic Gaussian linear models (`dBH_lm`). The procedures for other problems will be added in the future versions.
 
 ## Installation
 
@@ -15,7 +15,7 @@ This R package implements the dependent-adjusted Benjamini-Hochberg procedure, B
 if (!require("devtools")){
     install.packages("devtools")
 }
-devtools::install_github("lihualei71/cfcausal")
+devtools::install_github("lihualei71/dbh")
 ```
 
 ## Usage Examples
