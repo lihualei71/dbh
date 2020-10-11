@@ -102,10 +102,11 @@ multivariate z-statistics \eqn{z\sim N(\mu, \Sigma)}. \code{dBH_mvgauss} can han
 \itemize{
 \item When the covariance matrix fits into the memory, it can be inputted through \code{Sigma}. The diagonals do not
 have to be 1. In this case, \code{Sigmafun} and \code{vars} should be left as their default;
-\item When the covariance matrix does not fit into the memory, it can be inputted through \code{Sigmafun} and
-\code{vars}. \code{Sigmafun} should be a function with a single input \code{i} that gives the row index and a vector output \eqn{\Sigma_{i, }/\Sigma_{i, i}} where \eqn{\Sigma_{i, }} is the i-th row of \eqn{\Sigma}. The
-marginal variances \eqn{(\Sigma_{1, 1}, \ldots, \Sigma_{m, m})} are inputted through \code{vars}. If all marginal
-variances are 1, \code{vars} can be left as its default.
+\item When the covariance matrix does not fit into the memory, it can be inputted through \code{Sigmafun}, for the
+correlation matrix, and \code{vars}, for marginal variances. \code{Sigmafun} should be a function with a single input
+\code{i} that gives the row index and a vector output \eqn{\Sigma_{i, }/\sqrt{\Sigma_{i, i}\Sigma_{j, j}}} where
+\eqn{\Sigma_{i, }} is the i-th row of \eqn{\Sigma}. The marginal variances \eqn{(\Sigma_{1, 1}, \ldots, \Sigma_{m, m})}
+are inputted through \code{vars}. If all marginal variances are 1, \code{vars} can be left as its default.
 }
 
 \code{dBH_mvgauss} can handle all dSU procedures that are defined in Appendix C.1. with
