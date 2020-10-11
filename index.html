@@ -85,34 +85,35 @@ devtools::install_github("lihualei71/dbh")</code></pre>
 <h2 class="hasAnchor">
 <a href="#usage-examples" class="anchor"></a>Usage Examples</h2>
 <p>We illustrate the usage of <code>dBH_mvgauss</code> below. For details please read the manual.</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">dbh</span>)
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">dbh</span><span class="op">)</span>
 
 <span class="co">## basic example code</span>
 <span class="co"># Generate mu and Sigma for an AR process</span>
-<span class="no">n</span> <span class="kw">&lt;-</span> <span class="fl">100</span>
-<span class="no">rho</span> <span class="kw">&lt;-</span> <span class="fl">0.8</span>
-<span class="no">Sigma</span> <span class="kw">&lt;-</span> <span class="no">rho</span>^(<span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/outer.html">outer</a></span>(<span class="fl">1</span>:<span class="no">n</span>, <span class="fl">1</span>:<span class="no">n</span>, <span class="st">"-"</span>)))
-<span class="no">mu1</span> <span class="kw">&lt;-</span> <span class="fl">2.5</span>
-<span class="no">nalt</span> <span class="kw">&lt;-</span> <span class="fl">10</span>
-<span class="no">mu</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">mu1</span>, <span class="no">nalt</span>), <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">0</span>, <span class="no">n</span> - <span class="no">nalt</span>))
+<span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">100</span>
+<span class="va">rho</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
+<span class="va">Sigma</span> <span class="op">&lt;-</span> <span class="va">rho</span><span class="op">^</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html">outer</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="st">"-"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fl">2.5</span>
+<span class="va">nalt</span> <span class="op">&lt;-</span> <span class="fl">10</span>
+<span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">nalt</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">n</span> <span class="op">-</span> <span class="va">nalt</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Generate the z-values</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)
-<span class="no">zvals</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">NA</span>, <span class="no">n</span>)
-<span class="no">zvals</span>[<span class="fl">1</span>] <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="fl">1</span>)
-<span class="kw">for</span> (<span class="no">i</span> <span class="kw">in</span> <span class="fl">2</span>:<span class="no">n</span>){
-    <span class="no">zvals</span>[<span class="no">i</span>] <span class="kw">&lt;-</span> <span class="no">zvals</span>[<span class="no">i</span> - <span class="fl">1</span>] * <span class="no">rho</span> + <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="fl">1</span>) * <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(<span class="fl">1</span> - <span class="no">rho</span>^<span class="fl">2</span>)
-}
-<span class="no">zvals</span> <span class="kw">&lt;-</span> <span class="no">zvals</span> + <span class="no">mu</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">zvals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span><span class="op">)</span>
+<span class="va">zvals</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="va">n</span><span class="op">)</span><span class="op">{</span>
+    <span class="va">zvals</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">zvals</span><span class="op">[</span><span class="va">i</span> <span class="op">-</span> <span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="va">rho</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">rho</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>
+<span class="op">}</span>
+<span class="va">zvals</span> <span class="op">&lt;-</span> <span class="va">zvals</span> <span class="op">+</span> <span class="va">mu</span>
 
 <span class="co"># Run dBH_1(\alpha) for one-sided tests</span>
-<span class="no">alpha</span> <span class="kw">&lt;-</span> <span class="fl">0.05</span>
-<span class="no">res</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/dBH_mvgauss.html">dBH_mvgauss</a></span>(<span class="kw">zvals</span> <span class="kw">=</span> <span class="no">zvals</span>, <span class="kw">Sigma</span> <span class="kw">=</span> <span class="no">Sigma</span>, <span class="kw">side</span> <span class="kw">=</span> <span class="st">"right"</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="no">alpha</span>,
-                   <span class="kw">gamma</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">niter</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">avals_type</span> <span class="kw">=</span> <span class="st">"BH"</span>)
+<span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.05</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dBH_mvgauss.html">dBH_mvgauss</a></span><span class="op">(</span>zvals <span class="op">=</span> <span class="va">zvals</span>, Sigma <span class="op">=</span> <span class="va">Sigma</span>, side <span class="op">=</span> <span class="st">"right"</span>, alpha <span class="op">=</span> <span class="va">alpha</span>,
+                   gamma <span class="op">=</span> <span class="fl">1</span>, niter <span class="op">=</span> <span class="fl">1</span>, avals_type <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span>
 
 <span class="co"># Run dBH_1(\alpha) for two-sided tests</span>
-<span class="no">res</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/dBH_mvgauss.html">dBH_mvgauss</a></span>(<span class="kw">zvals</span> <span class="kw">=</span> <span class="no">zvals</span>, <span class="kw">Sigma</span> <span class="kw">=</span> <span class="no">Sigma</span>, <span class="kw">side</span> <span class="kw">=</span> <span class="st">"right"</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="no">alpha</span>,
-                   <span class="kw">gamma</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">niter</span> <span class="kw">=</span> <span class="fl">1</span>, <span class="kw">avals_type</span> <span class="kw">=</span> <span class="st">"BH"</span>)</pre></div>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dBH_mvgauss.html">dBH_mvgauss</a></span><span class="op">(</span>zvals <span class="op">=</span> <span class="va">zvals</span>, Sigma <span class="op">=</span> <span class="va">Sigma</span>, side <span class="op">=</span> <span class="st">"right"</span>, alpha <span class="op">=</span> <span class="va">alpha</span>,
+                   gamma <span class="op">=</span> <span class="fl">1</span>, niter <span class="op">=</span> <span class="fl">1</span>, avals_type <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span> </pre></div>
 </div>
 </div>
   </div>
@@ -141,7 +142,7 @@ devtools::install_github("lihualei71/dbh")</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

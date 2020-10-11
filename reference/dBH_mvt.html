@@ -118,27 +118,27 @@ multivariate t-statistics \(t = (t_1, \ldots, t_m)\) where \(t_i = z_i / \hat{\s
 \(H_i: \mu_i \le 0\) or \(H_i: \mu_i \ge 0\), and two-sided tests \(H_i: \mu_i = 0\).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dBH_mvt</span>(
-  <span class='no'>tvals</span>,
-  <span class='no'>df</span>,
-  <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>Sigmafun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>vars</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>side</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"right"</span>, <span class='st'>"left"</span>, <span class='st'>"two"</span>),
-  <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>tautype</span> <span class='kw'>=</span> <span class='st'>"QC"</span>,
-  <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>avals</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"BH"</span>, <span class='st'>"geom"</span>, <span class='st'>"bonf"</span>, <span class='st'>"manual"</span>),
-  <span class='kw'>geom_fac</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>eps</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>qcap</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>gridsize</span> <span class='kw'>=</span> <span class='fl'>20</span>,
-  <span class='kw'>exptcap</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
-  <span class='kw'>is_safe</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>dBH_mvt</span><span class='op'>(</span>
+  <span class='va'>tvals</span>,
+  <span class='va'>df</span>,
+  Sigma <span class='op'>=</span> <span class='cn'>NULL</span>,
+  Sigmafun <span class='op'>=</span> <span class='cn'>NULL</span>,
+  vars <span class='op'>=</span> <span class='cn'>NULL</span>,
+  side <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"right"</span>, <span class='st'>"left"</span>, <span class='st'>"two"</span><span class='op'>)</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0.05</span>,
+  gamma <span class='op'>=</span> <span class='cn'>NULL</span>,
+  tautype <span class='op'>=</span> <span class='st'>"QC"</span>,
+  niter <span class='op'>=</span> <span class='fl'>1</span>,
+  avals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  avals_type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"BH"</span>, <span class='st'>"geom"</span>, <span class='st'>"bonf"</span>, <span class='st'>"manual"</span><span class='op'>)</span>,
+  geom_fac <span class='op'>=</span> <span class='fl'>2</span>,
+  eps <span class='op'>=</span> <span class='fl'>0.05</span>,
+  qcap <span class='op'>=</span> <span class='fl'>2</span>,
+  gridsize <span class='op'>=</span> <span class='fl'>20</span>,
+  exptcap <span class='op'>=</span> <span class='fl'>0.9</span>,
+  is_safe <span class='op'>=</span> <span class='cn'>NULL</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -255,10 +255,11 @@ in the output if <code>secBH = TRUE</code>.</p></li>
     <p><code>dBH_mvt</code> supports two types of inputs for the covariance matrix.</p><ul>
 <li><p>When the covariance matrix fits into the memory, it can be inputted through <code>Sigma</code>. The diagonals do not
 have to be 1. In this case, <code>Sigmafun</code> and <code>vars</code> should be left as their default;</p></li>
-<li><p>When the covariance matrix does not fit into the memory, it can be inputted through <code>Sigmafun</code> and
-<code>vars</code>. <code>Sigmafun</code> should be a function with a single input <code>i</code> that gives the row index and a vector output \(\Sigma_{i, }/\Sigma_{i, i}\) where \(\Sigma_{i, }\) is the i-th row of \(\Sigma\). The
-marginal variances \((\Sigma_{1, 1}, \ldots, \Sigma_{m, m})\) are inputted through <code>vars</code>. If all marginal
-variances are 1, <code>vars</code> can be left as its default.</p></li>
+<li><p>When the covariance matrix does not fit into the memory, it can be inputted through <code>Sigmafun</code>, for the
+correlation matrix, and <code>vars</code>, for marginal variances. <code>Sigmafun</code> should be a function with a single input
+<code>i</code> that gives the row index and a vector output \(\Sigma_{i, }/\sqrt{\Sigma_{i, i}\Sigma_{j, j}}\) where
+\(\Sigma_{i, }\) is the i-th row of \(\Sigma\). The marginal variances \((\Sigma_{1, 1}, \ldots, \Sigma_{m, m})\)
+are inputted through <code>vars</code>. If all marginal variances are 1, <code>vars</code> can be left as its default.</p></li>
 </ul>
 
 <p><code>dBH_mvt</code> can handle all dSU procedures that are defined in Appendix C.1. with
@@ -281,69 +282,70 @@ increasing a-values. However, it can be much slower than the recommended approac
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Generate mu and Sigma for an AR process</span>
-<span class='no'>n</span> <span class='kw'>&lt;-</span> <span class='fl'>100</span>
-<span class='no'>rho</span> <span class='kw'>&lt;-</span> <span class='fl'>0.8</span>
-<span class='no'>Sigma</span> <span class='kw'>&lt;-</span> <span class='no'>rho</span>^(<span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span>(<span class='fl'>1</span>:<span class='no'>n</span>, <span class='fl'>1</span>:<span class='no'>n</span>, <span class='st'>"-"</span>)))
-<span class='no'>mu1</span> <span class='kw'>&lt;-</span> <span class='fl'>2.5</span>
-<span class='no'>nalt</span> <span class='kw'>&lt;-</span> <span class='fl'>10</span>
-<span class='no'>mu</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>mu1</span>, <span class='no'>nalt</span>), <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>, <span class='no'>n</span> - <span class='no'>nalt</span>))
+<span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fl'>100</span>
+<span class='va'>rho</span> <span class='op'>&lt;-</span> <span class='fl'>0.8</span>
+<span class='va'>Sigma</span> <span class='op'>&lt;-</span> <span class='va'>rho</span><span class='op'>^</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/outer.html'>outer</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>n</span>, <span class='fl'>1</span><span class='op'>:</span><span class='va'>n</span>, <span class='st'>"-"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>mu1</span> <span class='op'>&lt;-</span> <span class='fl'>2.5</span>
+<span class='va'>nalt</span> <span class='op'>&lt;-</span> <span class='fl'>10</span>
+<span class='va'>mu</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='va'>mu1</span>, <span class='va'>nalt</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='va'>n</span> <span class='op'>-</span> <span class='va'>nalt</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># Generate the z-values</span>
-<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>1</span>)
-<span class='no'>zvals</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>NA</span>, <span class='no'>n</span>)
-<span class='no'>zvals</span>[<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>1</span>)
-<span class='kw'>for</span> (<span class='no'>i</span> <span class='kw'>in</span> <span class='fl'>2</span>:<span class='no'>n</span>){
-    <span class='no'>zvals</span>[<span class='no'>i</span>] <span class='kw'>&lt;-</span> <span class='no'>zvals</span>[<span class='no'>i</span> - <span class='fl'>1</span>] * <span class='no'>rho</span> + <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>1</span>) * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>1</span> - <span class='no'>rho</span>^<span class='fl'>2</span>)
-}
-<span class='no'>zvals</span> <span class='kw'>&lt;-</span> <span class='no'>zvals</span> + <span class='no'>mu</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>zvals</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='va'>n</span><span class='op'>)</span>
+<span class='va'>zvals</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='kw'>for</span> <span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fl'>2</span><span class='op'>:</span><span class='va'>n</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>zvals</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>zvals</span><span class='op'>[</span><span class='va'>i</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>]</span> <span class='op'>*</span> <span class='va'>rho</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='fl'>1</span> <span class='op'>-</span> <span class='va'>rho</span><span class='op'>^</span><span class='fl'>2</span><span class='op'>)</span>
+<span class='op'>}</span>
+<span class='va'>zvals</span> <span class='op'>&lt;-</span> <span class='va'>zvals</span> <span class='op'>+</span> <span class='va'>mu</span>
 
 <span class='co'># Generate sigmahat and the t-values</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fl'>50</span>
-<span class='no'>sigmahat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Chisquare.html'>rchisq</a></span>(<span class='fl'>1</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>) / <span class='no'>df</span>)
-<span class='no'>tvals</span> <span class='kw'>&lt;-</span> <span class='no'>zvals</span> / <span class='no'>sigmahat</span>
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fl'>50</span>
+<span class='va'>sigmahat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Chisquare.html'>rchisq</a></span><span class='op'>(</span><span class='fl'>1</span>, df <span class='op'>=</span> <span class='va'>df</span><span class='op'>)</span> <span class='op'>/</span> <span class='va'>df</span><span class='op'>)</span>
+<span class='va'>tvals</span> <span class='op'>&lt;-</span> <span class='va'>zvals</span> <span class='op'>/</span> <span class='va'>sigmahat</span>
 
 <span class='co'># Run dBH_1(\alpha) for one-sided tests</span>
-<span class='no'>alpha</span> <span class='kw'>&lt;-</span> <span class='fl'>0.05</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>alpha</span> <span class='op'>&lt;-</span> <span class='fl'>0.05</span>
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='fl'>1</span>, niter <span class='op'>=</span> <span class='fl'>1</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
 
 <span class='co'># Run dBH_1(\alpha) for two-sided tests</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='fl'>1</span>, niter <span class='op'>=</span> <span class='fl'>1</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span> 
 
 <span class='co'># Run dBH^2_1(\alpha) for one-sided tests</span>
-<span class='no'>alpha</span> <span class='kw'>&lt;-</span> <span class='fl'>0.05</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>alpha</span> <span class='op'>&lt;-</span> <span class='fl'>0.05</span>
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='fl'>1</span>, niter <span class='op'>=</span> <span class='fl'>2</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
 
 <span class='co'># Run dBH^2_1(\alpha) for one-sided tests</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='fl'>1</span>, niter <span class='op'>=</span> <span class='fl'>2</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
 
 <span class='co'># Run dSU_1(\alpha) with the geometrically increasing a-values for one-sided tests</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"geom"</span>,
-               <span class='kw'>geom_fac</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='fl'>1</span>, niter <span class='op'>=</span> <span class='fl'>1</span>, avals_type <span class='op'>=</span> <span class='st'>"geom"</span>,
+               geom_fac <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
 
 <span class='co'># Run dBY(\alpha) for one-sided tests</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='cn'>NULL</span>, niter <span class='op'>=</span> <span class='fl'>1</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
 
 <span class='co'># Run dBY^2(\alpha) for one-sided tests</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-               <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+               alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='cn'>NULL</span>, niter <span class='op'>=</span> <span class='fl'>2</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
 
 <span class='co'># Input the covariance matrix through \code{Sigmafun}</span>
-<span class='no'>Sigmafun</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>i</span>){
-   <span class='no'>rho</span>^(<span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span>(<span class='fl'>1</span>:<span class='no'>n</span> - <span class='no'>i</span>))
-}
-<span class='no'>vars</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='no'>n</span>)
-<span class='no'>res1</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigmafun</span> <span class='kw'>=</span> <span class='no'>Sigmafun</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='no'>vars</span>,
-                <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-                <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
-<span class='no'>res2</span> <span class='kw'>&lt;-</span> <span class='fu'>dBH_mvt</span>(<span class='kw'>tvals</span> <span class='kw'>=</span> <span class='no'>tvals</span>, <span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>df</span>, <span class='kw'>Sigma</span> <span class='kw'>=</span> <span class='no'>Sigma</span>, <span class='kw'>side</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-                <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='no'>alpha</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>niter</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>avals_type</span> <span class='kw'>=</span> <span class='st'>"BH"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span>(<span class='no'>res1</span>, <span class='no'>res2</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='va'>Sigmafun</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>i</span><span class='op'>)</span><span class='op'>{</span>
+   <span class='va'>rho</span><span class='op'>^</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>n</span> <span class='op'>-</span> <span class='va'>i</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+<span class='va'>vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='va'>n</span><span class='op'>)</span>
+<span class='va'>res1</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigmafun <span class='op'>=</span> <span class='va'>Sigmafun</span>, vars <span class='op'>=</span> <span class='va'>vars</span>,
+                side <span class='op'>=</span> <span class='st'>"right"</span>, alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='cn'>NULL</span>, niter <span class='op'>=</span> <span class='fl'>1</span>,
+                avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
+<span class='va'>res2</span> <span class='op'>&lt;-</span> <span class='fu'>dBH_mvt</span><span class='op'>(</span>tvals <span class='op'>=</span> <span class='va'>tvals</span>, df <span class='op'>=</span> <span class='va'>df</span>, Sigma <span class='op'>=</span> <span class='va'>Sigma</span>, side <span class='op'>=</span> <span class='st'>"right"</span>,
+                alpha <span class='op'>=</span> <span class='va'>alpha</span>, gamma <span class='op'>=</span> <span class='cn'>NULL</span>, niter <span class='op'>=</span> <span class='fl'>1</span>, avals_type <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/identical.html'>identical</a></span><span class='op'>(</span><span class='va'>res1</span>, <span class='va'>res2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 
 
 </div></pre>
@@ -362,7 +364,7 @@ increasing a-values. However, it can be much slower than the recommended approac
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
