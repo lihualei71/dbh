@@ -10,6 +10,7 @@ dBH_mvgauss(
   Sigmafun = NULL,
   vars = NULL,
   side = c("right", "left", "two"),
+  weights = rep(1/length(zvals), length(zvals)),
   alpha = 0.05,
   gamma = NULL,
   niter = 1,
@@ -40,6 +41,8 @@ See Details.}
 \item{side}{a string that takes values in \{"right", "left", "two"\}, with "right" for one-sided tests
 \eqn{H_i: \mu_i \le 0}, "left" for one-sided tests, \eqn{H_i: \mu_i \ge 0}, and "two" for two-sided tests
 \eqn{H_i: \mu_i = 0}.}
+
+\item{weights}{a vector of non-negative adaptive weights. See details.}
 
 \item{alpha}{the target FDR level.}
 
