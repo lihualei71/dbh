@@ -2,6 +2,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 Sigma = NULL,
                                 Sigmafun = NULL,
                                 side = c("right", "left", "two"),
+                                weights = rep(1 / length(zvals), length(zvals)),
                                 alpha = 0.05, gamma = NULL,
                                 is_safe = FALSE,
                                 avals = NULL,
@@ -22,6 +23,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     params_root <- list(Sigma = Sigma,
                         Sigmafun = Sigmafun,
                         side = side,
+                        weights = weights,
                         alpha = alpha, gamma = gamma,
                         avals = avals,
                         avals_type = avals_type,
@@ -40,7 +42,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     } else {
         init_rejlist <- which(qvals <= alpha / max(avals))
         if (!is.null(exptcap)){
-            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha], init_rejlist)
+            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha * weights[cand]], init_rejlist)
         }
     }
     cand <- setdiff(cand, init_rejlist)    
@@ -131,7 +133,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
         prob <- sapply(grids, function(int){
             diff(pnorm(int))
         })
-	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
+	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i]){
             return(c(1, NA))
         }
 
@@ -172,8 +174,8 @@ dBH_mvgauss_qc_grid <- function(zvals,
             })
             sum(ex)
         })
-        expt <- sum(expt) * n
-        ifrej <- expt <= alpha
+        expt <- sum(expt)
+        ifrej <- expt <= alpha * weights[i]
         return(c(ifrej, expt))
     })
 

@@ -2,6 +2,7 @@ dBH_mvt_qc <- function(tvals, df,
                        Sigma = NULL,
                        Sigmafun = NULL,
                        side = c("one", "two"),
+                       weights = rep(1 / length(tvals), length(tvals)),
                        alpha = 0.05, gamma = NULL,
                        is_safe = FALSE,
                        avals = NULL, 
@@ -147,8 +148,8 @@ dBH_mvt_qc <- function(tvals, df,
         expt <- sapply(res, function(re){
             compute_cond_exp(abs(tvals[i]), re$knots, re$nrejs, re$thr, dist = function(n){pt(n, df = df)})
         })
-        expt <- sum(expt) * n
-        ifrej <- expt <= alpha
+        expt <- sum(expt)
+        ifrej <- expt <= alpha * weights[i]
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)

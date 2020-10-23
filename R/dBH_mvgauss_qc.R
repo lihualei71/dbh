@@ -2,6 +2,7 @@ dBH_mvgauss_qc <- function(zvals,
                            Sigma = NULL,
                            Sigmafun = NULL,
                            side = c("one", "two"),
+                           weights = rep(1 / length(zvals), length(zvals)),
                            alpha = 0.05, gamma = NULL,
                            is_safe = FALSE,
                            avals = NULL, 
@@ -143,8 +144,8 @@ dBH_mvgauss_qc <- function(zvals,
         expt <- sapply(res, function(re){
             compute_cond_exp(abs(zvals[i]), re$knots, re$nrejs, re$thr, dist = pnorm)
         })
-        expt <- sum(expt) * n
-        ifrej <- expt <= alpha
+        expt <- sum(expt)
+        ifrej <- (expt <= alpha * weights[i])
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)

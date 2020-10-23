@@ -43,6 +43,7 @@
 #' @param side a string that takes values in \{"right", "left", "two"\}, with "right" for one-sided tests
 #' \eqn{H_i: \mu_i \le 0}, "left" for one-sided tests, \eqn{H_i: \mu_i \ge 0}, and "two" for two-sided tests
 #' \eqn{H_i: \mu_i = 0}.
+#' @param weights a vector of non-negative adaptive weights. See details.
 #' @param alpha the target FDR level.
 #' @param gamma the parameter for the dBH and dSU procedures. The default is \code{NULL}, which gives dBY or the safe
 #' dSU with gamma = 1 / Lm defined in Appendix C.1.
@@ -157,6 +158,7 @@ dBH_mvt <- function(tvals, df,
                     Sigmafun = NULL,
                     vars = NULL,
                     side = c("right", "left", "two"),
+                    weights = rep(1 / length(tvals), length(tvals)),
                     alpha = 0.05, gamma = NULL,
                     tautype = "QC",
                     niter = 1,
@@ -169,14 +171,18 @@ dBH_mvt <- function(tvals, df,
                     exptcap = 0.9,
                     is_safe = NULL,
                     verbose = FALSE){
+    n <- length(tvals)    
     if (niter > 2){
         stop("\'niter\' can only be 1 or 2.")
     }
 
+    if (length(weights) != n){
+        stop("\'weights\' must be a vector of length n")
+    }
+    
     side <- side[1]
     avals_type <- avals_type[1]
     tautype <- tautype[1]    
-    n <- length(tvals)
     if (is.null(avals)){
         if (avals_type == "manual"){
             stop("avals must be inputted when avals_type = \"manual\"")
@@ -232,6 +238,7 @@ dBH_mvt <- function(tvals, df,
                        Sigma = Sigma,
                        Sigmafun = Sigmafun,
                        side = side,
+                       weights = weights,
                        alpha = alpha,
                        gamma = gamma,
                        is_safe = is_safe,
@@ -249,6 +256,7 @@ dBH_mvt <- function(tvals, df,
                             Sigma = Sigma,
                             Sigmafun = Sigmafun,
                             side = side,
+                            weights = weights,
                             alpha = alpha,
                             gamma = gamma,
                             is_safe = is_safe,

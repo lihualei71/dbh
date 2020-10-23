@@ -33,6 +33,7 @@
 #' @param side a string that takes values in \{"right", "left", "two"\}, with "right" for one-sided tests
 #' \eqn{H_i: \mu_i \le 0}, "left" for one-sided tests, \eqn{H_i: \mu_i \ge 0}, and "two" for two-sided tests
 #' \eqn{H_i: \mu_i = 0}.
+#' @param weights a vector of non-negative adaptive weights. See details.
 #' @param alpha the target FDR level.
 #' @param gamma the parameter for the dBH and dSU procedures. The default is \code{NULL}, which gives dBY or the safe
 #' dSU with gamma = 1 / Lm defined in Appendix C.1.
@@ -124,6 +125,7 @@ dBH_lm <- function(y, X,
                    subset = 1:ncol(X),
                    intercept = TRUE,
                    side = c("right", "left", "two"),
+                   weights = rep(1 / length(subset), length(subset)),
                    alpha = 0.05, gamma = NULL,
                    tautype = "QC",
                    niter = 1,                   
@@ -143,6 +145,7 @@ dBH_lm <- function(y, X,
             Sigmafun = NULL,
             vars = NULL,
             side = side,
+            weights = weights,
             alpha = alpha,
             gamma = gamma,
             tautype = tautype,

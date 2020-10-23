@@ -2,6 +2,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
                             Sigma = NULL,
                             Sigmafun = NULL,
                             side = c("one", "two"),
+                            weights = rep(1 / length(tvals), length(tvals)),
                             alpha = 0.05, gamma = NULL,
                             is_safe = FALSE,
                             avals = NULL,
@@ -21,6 +22,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
     params_root <- list(Sigma = Sigma,
                         Sigmafun = Sigmafun,
                         df = df, side = side,
+                        weights = weights,
                         alpha = alpha, gamma = gamma,
                         is_safe = is_safe,
                         avals = avals,
@@ -40,7 +42,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
     } else {
         init_rejlist <- which(qvals <= alpha / max(avals))
         if (!is.null(exptcap)){
-            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha], init_rejlist)
+            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha * weights[cand]], init_rejlist)
         }
     }
     cand <- setdiff(cand, init_rejlist)
@@ -133,7 +135,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
         prob <- sapply(grids, function(int){
             diff(pt(int, df = df))
         })
-	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
+	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i]){
             return(c(1, NA))
         }
         
@@ -177,8 +179,8 @@ dBH_mvt_qc_grid <- function(tvals, df,
             })
             sum(ex)
         })
-        expt <- sum(expt) * n
-        ifrej <- expt <= alpha
+        expt <- sum(expt)
+        ifrej <- expt <= alpha * weights[i]
         return(c(ifrej, expt))
     })
 
