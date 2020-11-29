@@ -219,6 +219,21 @@ dBH_mvgauss <- function(zvals,
     } else if (side == "right"){
         side <- "one"
     }
+
+    if (n == 1){
+        if (side == "one"){
+            pval <- pnorm(zvals, lower.tail = FALSE)
+        } else if (side == "two"){
+            pval <- 2 * pnorm(abs(zvals), lower.tail = FALSE)
+        }
+        rejlist <- which(pval <= alpha)
+        return(list(rejs = rejlist,
+                    initrejs = rejlist,
+                    cand = rejlist,
+                    expt = pval,
+                    safe = TRUE,
+                    secBH = FALSE))
+    }
     
     if (niter == 1){
         if (tautype == "QC"){

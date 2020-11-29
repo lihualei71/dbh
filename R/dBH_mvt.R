@@ -171,7 +171,8 @@ dBH_mvt <- function(tvals, df,
                     exptcap = 0.9,
                     is_safe = NULL,
                     verbose = FALSE){
-    n <- length(tvals)    
+    n <- length(tvals)
+    
     if (niter > 2){
         stop("\'niter\' can only be 1 or 2.")
     }
@@ -229,6 +230,21 @@ dBH_mvt <- function(tvals, df,
         side <- "one"
     } else if (side == "right"){
         side <- "one"
+    }
+
+    if (n == 1){
+        if (side == "one"){
+            pval <- pt(tvals, df, lower.tail = FALSE)
+        } else if (side == "two"){
+            pval <- 2 * pt(abs(tvals), df, lower.tail = FALSE)
+        }
+        rejlist <- which(pval <= alpha)
+        return(list(rejs = rejlist,
+                    initrejs = rejlist,
+                    cand = rejlist,
+                    expt = pval,
+                    safe = TRUE,
+                    secBH = FALSE))
     }
     
     if (niter == 1){
