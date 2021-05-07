@@ -42,7 +42,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -85,8 +85,8 @@ devtools::install_github("lihualei71/dbh")</code></pre>
 <h2 class="hasAnchor">
 <a href="#usage-examples" class="anchor"></a>Usage Examples</h2>
 <p>We illustrate the usage of <code>dBH_mvgauss</code> below. For details please read the manual.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">dbh</span><span class="op">)</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">dbh</span><span class="op">)</span>
 
 <span class="co">## basic example code</span>
 <span class="co"># Generate mu and Sigma for an AR process</span>
@@ -113,7 +113,7 @@ devtools::install_github("lihualei71/dbh")</code></pre>
 
 <span class="co"># Run dBH_1(\alpha) for two-sided tests</span>
 <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dBH_mvgauss.html">dBH_mvgauss</a></span><span class="op">(</span>zvals <span class="op">=</span> <span class="va">zvals</span>, Sigma <span class="op">=</span> <span class="va">Sigma</span>, side <span class="op">=</span> <span class="st">"right"</span>, alpha <span class="op">=</span> <span class="va">alpha</span>,
-                   gamma <span class="op">=</span> <span class="fl">1</span>, niter <span class="op">=</span> <span class="fl">1</span>, avals_type <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span> </pre></div>
+                   gamma <span class="op">=</span> <span class="fl">1</span>, niter <span class="op">=</span> <span class="fl">1</span>, avals_type <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span> </code></pre></div>
 </div>
 </div>
   </div>
