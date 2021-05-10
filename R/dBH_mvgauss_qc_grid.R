@@ -12,12 +12,13 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 qcap = 2,
                                 gridsize = 20,
                                 exptcap = 0.9,
-                                verbose = FALSE){
+                                verbose = FALSE, weights = rep(1, length(zvals))){
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
     high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
     pvals <- zvals_pvals(zvals, side)
+    pvals <- pvals/weights
     qvals <- qvals_BH_reshape(pvals, avals)
     
     params_root <- list(Sigma = Sigma,
@@ -133,7 +134,11 @@ dBH_mvgauss_qc_grid <- function(zvals,
         prob <- sapply(grids, function(int){
             diff(pnorm(int))
         })
+<<<<<<< Updated upstream
 	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i]){
+=======
+    if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
+>>>>>>> Stashed changes
             return(c(1, NA))
         }
 

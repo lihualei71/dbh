@@ -10,12 +10,13 @@ dBH_mvgauss_qc <- function(zvals,
                            geom_fac = 2,
                            eps = 0.05,
                            qcap = 2,
-                           verbose = FALSE){
+                           verbose = FALSE, weights = rep(1, length(zvals))){
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)    
     high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
     pvals <- zvals_pvals(zvals, side)
+    pvals <- pvals/weights
     qvals <- qvals_BH_reshape(pvals, avals)
     obj <- RBH_init(pvals, qvals, alpha, alpha0,
                     avals, is_safe, qcap)
@@ -35,7 +36,7 @@ dBH_mvgauss_qc <- function(zvals,
     ncands <- length(obj$cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
-        low <- qnorm(qvals[i] * max(avals) / n / ntails, lower.tail = FALSE)
+        low <- qnorm(qvals[i] * weights[i] * max(avals) / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {
@@ -53,7 +54,9 @@ dBH_mvgauss_qc <- function(zvals,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -84,7 +87,7 @@ dBH_mvgauss_qc <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * qvals[i] / n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
             list(knots = knots, thr = thr)
         })
 
@@ -99,7 +102,9 @@ dBH_mvgauss_qc <- function(zvals,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
         res_alpha0 <- lapply(res_alpha0, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -130,7 +135,7 @@ dBH_mvgauss_qc <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * alpha0 / n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * alpha0 * weights[i]/ n / ntails, lower.tail = FALSE)
             knots_lo <- head(knots, -1)
             knots_hi <- tail(knots, -1)
             nrejs <- nrejs + ((knots_lo + knots_hi) / 2 < thr)
@@ -144,8 +149,13 @@ dBH_mvgauss_qc <- function(zvals,
         expt <- sapply(res, function(re){
             compute_cond_exp(abs(zvals[i]), re$knots, re$nrejs, re$thr, dist = pnorm)
         })
+<<<<<<< Updated upstream
         expt <- sum(expt)
         ifrej <- (expt <= alpha * weights[i])
+=======
+        expt <- sum(expt) * n /weights[i]
+        ifrej <- expt <= alpha
+>>>>>>> Stashed changes
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)

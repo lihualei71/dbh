@@ -46,7 +46,7 @@ qvals_BH_reshape <- function(pvals, avals = 1:length(pvals)){
 }
 
 BH <- function(pvals, alpha = 0.05, avals = 1:length(pvals),
-               reshape = TRUE){
+               reshape = TRUE, weights){
     n <- length(pvals)
     if (reshape){
         alpha <- alpha / normalize(avals)
@@ -59,7 +59,7 @@ BH <- function(pvals, alpha = 0.05, avals = 1:length(pvals),
 # Compute the rejection-corrected vector given thresholds and a-values. Equivalent to compute_mod_nrejs when avals = 1:length(thresh)
 # NOTE: Assumes thresh is in decreasing order
 compute_RCV <- function(x, thresh, avals){
-    ord <- order(c(x, thresh), decreasing = TRUE)
+    ord <- order(c(x, thresh), decreasing = FALSE)
     ones.zeros <- c(rep(1, length(x)), rep(0, length(thresh)))[ord]
     cumsum(ones.zeros)[ones.zeros == 0] - avals
 }

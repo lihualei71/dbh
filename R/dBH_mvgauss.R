@@ -162,6 +162,7 @@ dBH_mvgauss <- function(zvals,
                         gridsize = 20,
                         exptcap = 0.9,
                         is_safe = NULL,
+                        weights = rep(1, length(zvals)),
                         verbose = FALSE){
     n <- length(zvals)    
     if (niter > 2){
@@ -250,7 +251,8 @@ dBH_mvgauss <- function(zvals,
                            geom_fac = geom_fac,
                            eps = eps,
                            qcap = qcap,
-                           verbose = verbose)
+                           verbose = verbose,
+                           weights = weights)
         }
     } else if (niter == 2){
         if (tautype == "QC"){
@@ -269,7 +271,8 @@ dBH_mvgauss <- function(zvals,
                                 qcap = qcap,
                                 gridsize = gridsize,
                                 exptcap = exptcap,
-                                verbose = verbose)
+                                verbose = verbose,
+                                weights = weights)
         }
     }
 }
