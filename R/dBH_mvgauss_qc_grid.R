@@ -63,7 +63,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     ncands <- length(cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- cand[id]
-        low <- qnorm(qvals[i] * max(avals) / n / ntails, lower.tail = FALSE)
+        low <- qnorm(qvals[i] * weights[i] * max(avals) / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {
@@ -82,7 +82,9 @@ dBH_mvgauss_qc_grid <- function(zvals,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -113,7 +115,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * qvals[i] / n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
             list(knots = knots, thr = thr)
         })
 

@@ -10,12 +10,14 @@ dBH_mvt_qc <- function(tvals, df,
                        geom_fac = 2,
                        eps = 0.05,
                        qcap = 2,
+                       weights = rep(1, length(tvals)),
                        verbose = FALSE){
     n <- length(tvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
     high <- qt(alpha * eps / n / ntails, df = df, lower.tail = FALSE)
     pvals <- tvals_pvals(tvals, df, side)
+    pvals <- pvals/weights
     qvals <- qvals_BH_reshape(pvals, avals)
     obj <- RBH_init(pvals, qvals, alpha, alpha0,
                     avals, is_safe, qcap)
