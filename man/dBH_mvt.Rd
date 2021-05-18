@@ -11,7 +11,7 @@ dBH_mvt(
   Sigmafun = NULL,
   vars = NULL,
   side = c("right", "left", "two"),
-  weights = rep(1/length(tvals), length(tvals)),
+  weights = rep(1, length(tvals)),
   alpha = 0.05,
   gamma = NULL,
   tautype = "QC",

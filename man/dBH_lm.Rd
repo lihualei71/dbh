@@ -11,7 +11,7 @@ dBH_lm(
   subset = 1:ncol(X),
   intercept = TRUE,
   side = c("right", "left", "two"),
-  weights = rep(1/length(subset), length(subset)),
+  weights = rep(1, length(subset)),
   alpha = 0.05,
   gamma = NULL,
   tautype = "QC",

@@ -10,7 +10,7 @@ dBH_mvgauss(
   Sigmafun = NULL,
   vars = NULL,
   side = c("right", "left", "two"),
-  weights = rep(1/length(zvals), length(zvals)),
+  weights = rep(1, length(zvals)),
   alpha = 0.05,
   gamma = NULL,
   niter = 1,
