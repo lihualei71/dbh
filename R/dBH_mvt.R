@@ -158,7 +158,7 @@ dBH_mvt <- function(tvals, df,
                     Sigmafun = NULL,
                     vars = NULL,
                     side = c("right", "left", "two"),
-                    weights = rep(1 / length(tvals), length(tvals)),
+                    weights = rep(1 , length(tvals)),
                     alpha = 0.05, gamma = NULL,
                     tautype = "QC",
                     niter = 1,
@@ -170,7 +170,6 @@ dBH_mvt <- function(tvals, df,
                     gridsize = 20,
                     exptcap = 0.9,
                     is_safe = NULL,
-                    weights = rep(1, length(tvals)),
                     verbose = FALSE){
     n <- length(tvals)
     
@@ -180,6 +179,10 @@ dBH_mvt <- function(tvals, df,
 
     if (length(weights) != n){
         stop("\'weights\' must be a vector of length n")
+    }
+
+    if (sum(weights) != n){
+        stop("\'weights\' must sum to n")
     }
     
     side <- side[1]
@@ -264,8 +267,7 @@ dBH_mvt <- function(tvals, df,
                        geom_fac = geom_fac,
                        eps = eps,
                        qcap = qcap,
-                       verbose = verbose,
-                       weights = weights)
+                       verbose = verbose)
         }
     } else if (niter == 2){
         if (tautype == "QC"){
@@ -285,8 +287,7 @@ dBH_mvt <- function(tvals, df,
                             qcap = qcap,
                             gridsize = gridsize,
                             exptcap = exptcap,
-                            verbose = verbose,
-                            weights = weights)
+                            verbose = verbose)
         }
     }
 }

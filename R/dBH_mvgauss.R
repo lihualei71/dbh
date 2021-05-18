@@ -150,7 +150,7 @@ dBH_mvgauss <- function(zvals,
                         Sigmafun = NULL,
                         vars = NULL,
                         side = c("right", "left", "two"),
-                        weights = rep(1 / length(zvals), length(zvals)),
+                        weights = rep(1, length(zvals)),
                         alpha = 0.05, gamma = NULL,
                         niter = 1,
                         tautype = "QC",
@@ -162,7 +162,6 @@ dBH_mvgauss <- function(zvals,
                         gridsize = 20,
                         exptcap = 0.9,
                         is_safe = NULL,
-                        weights = rep(1, length(zvals)),
                         verbose = FALSE){
     n <- length(zvals)    
     if (niter > 2){
@@ -171,6 +170,10 @@ dBH_mvgauss <- function(zvals,
 
     if (length(weights) != n){
         stop("\'weights\' must be a vector of length n")
+    }
+
+    if (sum(weights) != n){
+        stop("\'weights\' must sum to n")
     }
 
     side <- side[1]
@@ -251,8 +254,7 @@ dBH_mvgauss <- function(zvals,
                            geom_fac = geom_fac,
                            eps = eps,
                            qcap = qcap,
-                           verbose = verbose,
-                           weights = weights)
+                           verbose = verbose)
         }
     } else if (niter == 2){
         if (tautype == "QC"){
@@ -271,8 +273,7 @@ dBH_mvgauss <- function(zvals,
                                 qcap = qcap,
                                 gridsize = gridsize,
                                 exptcap = exptcap,
-                                verbose = verbose,
-                                weights = weights)
+                                verbose = verbose)
         }
     }
 }

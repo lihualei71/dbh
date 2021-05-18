@@ -2,7 +2,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 Sigma = NULL,
                                 Sigmafun = NULL,
                                 side = c("right", "left", "two"),
-                                weights = rep(1 / length(zvals), length(zvals)),
+                                weights = rep(1, length(zvals)),
                                 alpha = 0.05, gamma = NULL,
                                 is_safe = FALSE,
                                 avals = NULL,
@@ -12,7 +12,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 qcap = 2,
                                 gridsize = 20,
                                 exptcap = 0.9,
-                                verbose = FALSE, weights = rep(1, length(zvals))){
+                                verbose = FALSE){
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
@@ -43,7 +43,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     } else {
         init_rejlist <- which(qvals <= alpha / max(avals))
         if (!is.null(exptcap)){
-            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha * weights[cand]], init_rejlist)
+            init_rejlist <- union(cand[res_init$expt <= exptcap * alpha * weights[cand] / n], init_rejlist)
         }
     }
     cand <- setdiff(cand, init_rejlist)    
@@ -137,7 +137,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
             diff(pnorm(int))
         })
 <<<<<<< Updated upstream
-	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i]){
+	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i] / n){
 =======
     if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
 >>>>>>> Stashed changes
@@ -182,7 +182,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
             sum(ex)
         })
         expt <- sum(expt)
-        ifrej <- expt <= alpha * weights[i]
+        ifrej <- expt <= alpha * weights[i] / n
         return(c(ifrej, expt))
     })
 

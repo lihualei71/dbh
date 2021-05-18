@@ -2,7 +2,7 @@ dBH_mvgauss_qc <- function(zvals,
                            Sigma = NULL,
                            Sigmafun = NULL,
                            side = c("one", "two"),
-                           weights = rep(1 / length(zvals), length(zvals)),
+                           weights = rep(1, length(zvals)),
                            alpha = 0.05, gamma = NULL,
                            is_safe = FALSE,
                            avals = NULL, 
@@ -10,15 +10,15 @@ dBH_mvgauss_qc <- function(zvals,
                            geom_fac = 2,
                            eps = 0.05,
                            qcap = 2,
-                           verbose = FALSE, weights = rep(1, length(zvals))){
+                           verbose = FALSE){
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)    
     high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
     pvals <- zvals_pvals(zvals, side)
-    pvals <- pvals/weights
-    qvals <- qvals_BH_reshape(pvals, avals)
-    obj <- RBH_init(pvals, qvals, alpha, alpha0,
+    wpvals <- pvals/weights
+    qvals <- qvals_BH_reshape(wpvals, avals)
+    obj <- RBH_init(wpvals, qvals, alpha, alpha0,
                     avals, is_safe, qcap)
 
     if (length(obj$cand) == 0){
@@ -151,7 +151,7 @@ dBH_mvgauss_qc <- function(zvals,
         })
 <<<<<<< Updated upstream
         expt <- sum(expt)
-        ifrej <- (expt <= alpha * weights[i])
+        ifrej <- (expt <= alpha * weights[i] / n)
 =======
         expt <- sum(expt) * n /weights[i]
         ifrej <- expt <= alpha

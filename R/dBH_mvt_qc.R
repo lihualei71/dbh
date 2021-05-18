@@ -2,7 +2,7 @@ dBH_mvt_qc <- function(tvals, df,
                        Sigma = NULL,
                        Sigmafun = NULL,
                        side = c("one", "two"),
-                       weights = rep(1 / length(tvals), length(tvals)),
+                       weights = rep(1, length(tvals)),
                        alpha = 0.05, gamma = NULL,
                        is_safe = FALSE,
                        avals = NULL, 
@@ -10,7 +10,6 @@ dBH_mvt_qc <- function(tvals, df,
                        geom_fac = 2,
                        eps = 0.05,
                        qcap = 2,
-                       weights = rep(1, length(tvals)),
                        verbose = FALSE){
     n <- length(tvals)
     alpha0 <- gamma * alpha
@@ -38,7 +37,7 @@ dBH_mvt_qc <- function(tvals, df,
     ncands <- length(obj$cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
-        low <- qt(qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE)
+        low <- qt(qvals[i] * max(avals) * weights[i]/ n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {
@@ -57,7 +56,9 @@ dBH_mvt_qc <- function(tvals, df,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -103,7 +104,9 @@ dBH_mvt_qc <- function(tvals, df,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
         res_alpha0 <- lapply(res_alpha0, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -151,7 +154,7 @@ dBH_mvt_qc <- function(tvals, df,
             compute_cond_exp(abs(tvals[i]), re$knots, re$nrejs, re$thr, dist = function(n){pt(n, df = df)})
         })
         expt <- sum(expt)
-        ifrej <- expt <= alpha * weights[i]
+        ifrej <- expt <= alpha * weights[i] / n
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)
