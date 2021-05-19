@@ -14,11 +14,10 @@ dBH_mvgauss_qc <- function(zvals,
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)    
-    high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
     pvals <- zvals_pvals(zvals, side)
     wpvals <- pvals/weights
     qvals <- qvals_BH_reshape(wpvals, avals)
-    obj <- RBH_init(wpvals, qvals, alpha, alpha0,
+    obj <- RBH_init(qvals, alpha, alpha0,
                     avals, is_safe, qcap)
 
     if (length(obj$cand) == 0){
@@ -37,6 +36,7 @@ dBH_mvgauss_qc <- function(zvals,
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
         low <- qnorm(qvals[i] * weights[i] * max(avals) / n / ntails, lower.tail = FALSE)
+        high <- qnorm(weights[i] * alpha * eps / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {

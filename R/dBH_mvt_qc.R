@@ -14,11 +14,10 @@ dBH_mvt_qc <- function(tvals, df,
     n <- length(tvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
-    high <- qt(alpha * eps / n / ntails, df = df, lower.tail = FALSE)
     pvals <- tvals_pvals(tvals, df, side)
-    pvals <- pvals/weights
-    qvals <- qvals_BH_reshape(pvals, avals)
-    obj <- RBH_init(pvals, qvals, alpha, alpha0,
+    wpvals <- pvals/weights
+    qvals <- qvals_BH_reshape(wpvals, avals)
+    obj <- RBH_init(alpha, alpha0,
                     avals, is_safe, qcap)
     
     if (length(obj$cand) == 0){
@@ -37,7 +36,8 @@ dBH_mvt_qc <- function(tvals, df,
     ncands <- length(obj$cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
-        low <- qt(qvals[i] * max(avals) * weights[i]/ n / ntails, df = df, lower.tail = FALSE)
+        low <- qt(weights[i] * qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE)
+        high <- qt(weights[i] * alpha * eps / n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {

@@ -16,10 +16,9 @@ dBH_mvgauss_qc_grid <- function(zvals,
     n <- length(zvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
-    high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
     pvals <- zvals_pvals(zvals, side)
-    pvals <- pvals/weights
-    qvals <- qvals_BH_reshape(pvals, avals)
+    wpvals <- pvals/weights
+    qvals <- qvals_BH_reshape(wpvals, avals)
     
     params_root <- list(Sigma = Sigma,
                         Sigmafun = Sigmafun,
@@ -64,6 +63,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     cand_info <- sapply(1:ncands, function(id){
         i <- cand[id]
         low <- qnorm(qvals[i] * weights[i] * max(avals) / n / ntails, lower.tail = FALSE)
+        high <- qnorm(weights[i] * alpha * eps / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
         } else {

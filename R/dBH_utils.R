@@ -130,10 +130,10 @@ nrejs_BH <- function(pvals, alpha){
     max(0, which(adjust_pvals <= 1))
 }
 
-RBH_init <- function(pvals, qvals, alpha, alpha0,
+RBH_init <- function(qvals, alpha, alpha0,
                      avals, is_safe, qcap){
-    n <- length(pvals)
-    dBH_rej0 <- BH(pvals, alpha0, avals, FALSE)$rejs
+    n <- length(qvals)
+    dBH_rej0 <- (1:n)[qvals <= alpha0]
     Rinit <- rep(length(dBH_rej0) + 1, n)
     Rinit[dBH_rej0] <- Rinit[dBH_rej0] - 1
 

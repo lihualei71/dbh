@@ -66,19 +66,19 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
         ## xlow[1] <- Inf
         ## Compute rejections as if p[1] = 0
         pvals <- zvals_pvals(xlow, side)
-        pvals <- pvals/weights
-        RCV[[1]] <- compute_RCV(pvals, alpha * avals / n, avals)      # Initialize rejection-counting vector (rcv)
+        wpvals <- pvals/weights
+        RCV[[1]] <- compute_RCV(wpvals, alpha * avals / n, avals)      # Initialize rejection-counting vector (rcv)
     } else if (side == "two"){
         xlow1 <- abs(recover_stats_mvgauss(zstat, low, s, cor))
         ## xlow1[1] <- Inf
         pvals1 <- zvals_pvals(xlow1, side)
-        pvals1 <- pvals1/weights
-        RCV[[1]] <- compute_RCV(pvals1, alpha * avals / n, avals)   
+        wpvals1 <- pvals1/weights
+        RCV[[1]] <- compute_RCV(wpvals1, alpha * avals / n, avals)   
         # Initialize rcv at left boundary of right tail
         xlow2 <- abs(recover_stats_mvgauss(zstat, -high, s, cor))
         pvals2 <- zvals_pvals(xlow2, side)
-        pvals2 <- pvals2/weights
-        RCV[[2]] <- compute_RCV(pvals2, alpha * avals / n, avals)   
+        wpvals2 <- pvals2/weights
+        RCV[[2]] <- compute_RCV(wpvals2, alpha * avals / n, avals)   
         ## xlow2[1] <- Inf
         #   Initialize rcv at left boundary of left tail
     }
