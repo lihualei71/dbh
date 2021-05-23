@@ -104,8 +104,8 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
     #      between low and high (and -high and -low, for 2-sided)
     thr_bounds <- thresh_bounds_mvgauss(coef1, coef2, low, high)
     if (navals > 1){
-        thrid_upper <- floor(pnorm(thr_bounds$lower, lower.tail = FALSE)/c(weight, weightminus) * n / alpha - 1e-15)
-        thrid_lower <- ceiling(pnorm(thr_bounds$upper, lower.tail = FALSE)/c(weight, weightminus) * n / alpha + 1e-15)
+        thrid_upper <- floor(pnorm(thr_bounds$lower, lower.tail = FALSE)/weights * n / alpha - 1e-15)
+        thrid_lower <- ceiling(pnorm(thr_bounds$upper, lower.tail = FALSE)/weights * n / alpha + 1e-15)
         if (avals_type == "geom"){
             thrid_upper <- find_ind_geom_avals(geom_fac, thrid_upper, "max")
             thrid_lower <- find_ind_geom_avals(geom_fac, thrid_lower, "min")
@@ -158,10 +158,10 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
             i <- ids[[tail]][k]
             if (navals > 1){
                 thrids <- max(1, thrid_lower[i]):min(navals, thrid_upper[i])
-                thr <- qnorm(alpha * weights[i] %o%  thrids / n, lower.tail = FALSE)      # which thresholds this coordinate crosses
+                thr <- qnorm(alpha * weights[i] %o%  avals[thrids] / n, lower.tail = FALSE)      # which thresholds this coordinate crosses
             } else {
                 thrids <- 1
-                thr <- qnorm(alpha * weights[i] %o%  avals / n, lower.tail = FALSE)
+                thr <- qnorm(alpha * weights[i] %o%  avals[thrids] / n, lower.tail = FALSE)
             }
             sol <- linroots_mvgauss(coef1[i], coef2[i], thr)
             knots[[k]] <- sol$roots * thrsgn[i]  # locations of z[1] where threshold crossed

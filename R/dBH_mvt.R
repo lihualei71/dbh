@@ -184,6 +184,10 @@ dBH_mvt <- function(tvals, df,
     if (sum(weights) != n){
         stop("\'weights\' must sum to n")
     }
+
+    if (sum(weights <= 0) > 0){
+        stop("\'weights\' must be positive")
+    }
     
     side <- side[1]
     avals_type <- avals_type[1]

@@ -172,6 +172,10 @@ dBH_mvgauss <- function(zvals,
         stop("\'weights\' must be a vector of length n")
     }
 
+    if (sum(weights <= 0) > 0){
+        stop("\'weights\' must be positive")
+    }
+
     if (sum(weights) != n){
         stop("\'weights\' must sum to n")
     }
