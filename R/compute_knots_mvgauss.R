@@ -71,12 +71,12 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
     } else if (side == "two"){
         xlow1 <- abs(recover_stats_mvgauss(zstat, low, s, cor))
         ## xlow1[1] <- Inf
-        pvals1 <- zvals_pvals(xlow1, side)
+        pvals1 <- zvals_pvals(xlow1, "one")
         wpvals1 <- pvals1/weights
         RCV[[1]] <- compute_RCV(wpvals1, alpha * avals / n, avals)   
         # Initialize rcv at left boundary of right tail
         xlow2 <- abs(recover_stats_mvgauss(zstat, -high, s, cor))
-        pvals2 <- zvals_pvals(xlow2, side)
+        pvals2 <- zvals_pvals(xlow2, "one")
         wpvals2 <- pvals2/weights
         RCV[[2]] <- compute_RCV(wpvals2, alpha * avals / n, avals)   
         ## xlow2[1] <- Inf
@@ -98,6 +98,7 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
         coef1 <- c(s, -s, s, -s)
         coef2 <- c(cor, -cor, -cor, cor)
         hypid <- rep(1:n, 4)
+        weights <- rep(weights, 4)
     }
 
     # Compute bounding box of z[i] (and -z[i] for 2-sided), as z[1] varies

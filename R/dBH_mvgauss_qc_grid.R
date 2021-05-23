@@ -136,11 +136,8 @@ dBH_mvgauss_qc_grid <- function(zvals,
         prob <- sapply(grids, function(int){
             diff(pnorm(int))
         })
-<<<<<<< Updated upstream
+
 	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) <= alpha * weights[i] / n){
-=======
-    if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
->>>>>>> Stashed changes
             return(c(1, NA))
         }
 

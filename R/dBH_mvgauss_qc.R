@@ -135,7 +135,7 @@ dBH_mvgauss_qc <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * alpha0 * weights[i]/ n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * alpha0 * weights[i] / n / ntails, lower.tail = FALSE)
             knots_lo <- head(knots, -1)
             knots_hi <- tail(knots, -1)
             nrejs <- nrejs + ((knots_lo + knots_hi) / 2 < thr)
@@ -149,13 +149,9 @@ dBH_mvgauss_qc <- function(zvals,
         expt <- sapply(res, function(re){
             compute_cond_exp(abs(zvals[i]), re$knots, re$nrejs, re$thr, dist = pnorm)
         })
-<<<<<<< Updated upstream
+
         expt <- sum(expt)
         ifrej <- (expt <= alpha * weights[i] / n)
-=======
-        expt <- sum(expt) * n /weights[i]
-        ifrej <- expt <= alpha
->>>>>>> Stashed changes
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)
