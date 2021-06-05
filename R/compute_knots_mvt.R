@@ -99,34 +99,40 @@ quadroots_mvt <- function(a, b, thresh){
 compute_knots_mvt <- function(tstat, tminus, df, cor,
                               alpha, side,
                               low, high,
-                              avals, avals_type, geom_fac
+                              avals, avals_type, geom_fac,
+                              weight, weightminus
                               ){
     n <- length(tminus) + 1
     navals <- length(avals)    
     if (side == "two"){
         alpha <- alpha / 2
     }
-    thresh <- qt(alpha * avals / n, df = df, lower.tail = FALSE)
+    weights <- c(weight, weightminus)
     s <- tminus - cor * tstat  #Conditioning statistic S
     RCV <- list()
     if (side == "one"){
         xlow <- recover_stats_mvt(tstat, low, s, cor, df)  # Full t vector at t[1] = low
         ## xlow[1] <- Inf
+        pvals <- tvals_pvals(xlow, df, side)
+        wpvals <- pvals/weights
         ## Compute rejections as if p[1] = 0
-        RCV[[1]] <- compute_RCV(xlow, thresh, avals)       # Initialize rejection-counting vector (rcv)
+        RCV[[1]] <- compute_RCV(wpvals, alpha * avals / n, avals)       # Initialize rejection-counting vector (rcv)
     } else if (side == "two"){
         xlow1 <- abs(recover_stats_mvt(tstat, low, s, cor, df))
         ## xlow1[1] <- Inf
-        RCV[[1]] <- compute_RCV(xlow1, thresh, avals)              # Initialize rcv at left boundary of right tail
+        pvals1 <- tvals_pvals(xlow1, df, "one")
+        wpvals1 <- pvals1/weights
+        RCV[[1]] <- compute_RCV(wpvals1, alpha * avals / n, avals)              # Initialize rcv at left boundary of right tail
         xlow2 <- abs(recover_stats_mvt(tstat, -high, s, cor, df))
         ## xlow2[1] <- Inf
-        RCV[[2]] <- compute_RCV(xlow2, thresh, avals)              # Initialize rcv at left boundary of left tail
+        pvals2 <- tvals_pvals(xlow2, df, "one")
+        wpvals2 <- pvals2/weights
+        RCV[[2]] <- compute_RCV(wpvals2, alpha * avals / n, avals)              # Initialize rcv at left boundary of left tail
     }
 
     # Rescale equations to be of the form a * sqrt(1 + x^2) + b * x = c,
     #        by dividing out sqrt(df)
     sqdf <- sqrt(df)
-    thresh <- thresh / sqdf
     tstat <- tstat / sqdf
     tminus <- tminus / sqdf
     low <- low / sqdf
@@ -147,6 +153,7 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
         coef1 <- c(tmp, -tmp, tmp, -tmp)
         coef2 <- c(cor, -cor, -cor, cor)
         hypid <- rep(1:n, 4)
+        weights <- rep(weights, 4)
     }
 
     # Screen out coordinates that will never cross any threshold
@@ -161,8 +168,8 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
     #      between low and high (and -high and -low, for 2-sided)    
     thr_bounds <- thresh_bounds_mvt(coef1, coef2, low, high)
     if (navals > 1){
-        thrid_upper <- floor(pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE) * n / alpha - 1e-15)
-        thrid_lower <- ceiling(pt(thr_bounds$upper * sqdf, df = df, lower.tail = FALSE) * n / alpha + 1e-15)
+        thrid_upper <- floor(pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE) / weights[ids] * n / alpha - 1e-15)
+        thrid_lower <- ceiling(pt(thr_bounds$upper * sqdf, df = df, lower.tail = FALSE) / weights[ids] * n / alpha + 1e-15)
         if (avals_type == "geom"){
             thrid_upper <- find_ind_geom_avals(geom_fac, thrid_upper, "max")
             thrid_lower <- find_ind_geom_avals(geom_fac, thrid_lower, "min")
@@ -173,6 +180,8 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
         rmids <- which(thrid_lower > navals | thrid_upper < 1 | thrid_upper < thrid_lower) # Which coordinates aren't removed
         ids <- (1:length(coef1))[-rmids]
     } else {
+        thresh <- qt(pmin(1, weights * alpha * avals / n), df = df, lower.tail = FALSE)
+        thresh <- thresh / sqdf
         ids <- (1:length(ids))[thr_bounds$lower <= thresh & thr_bounds$upper >= thresh]
     }
 
@@ -211,11 +220,11 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
         for (k in 1:length(ids[[tail]])){
             i <- ids[[tail]][k]
             if (navals > 1){
-                thrids <- max(1, thrid_lower[i]):min(navals, thrid_upper[i])
-                thr <- thresh[thrids]                # which thresholds this coordinate crosses
+                thrids <- max(1, thrid_lower[i]):min(navals, thrid_upper[i])  
+                thr <- qt(pmin(1, alpha * weights[i] * avals[thrids] / n), df = df, lower.tail = FALSE) / sqdf                # which thresholds this coordinate crosses
             } else {
                 thrids <- 1
-                thr <- thresh
+                thr <- qt(pmin(1, alpha * weights[i] * avals / n), df = df, lower.tail = FALSE) / sqdf
             }
             sol <- quadroots_mvt(coef1[i], coef2[i], thr)
             inds <- sol$roots <= high & sol$roots >= low

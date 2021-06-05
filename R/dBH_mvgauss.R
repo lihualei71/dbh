@@ -172,19 +172,25 @@ dBH_mvgauss <- function(zvals,
         stop("\'weights\' must be a vector of length n")
     }
 
-    if (sum(weights <= 0) > 0){
-        stop("\'weights\' must be positive")
+    if (sum(weights < 0) > 0){
+        stop("\'weights\' must be non-negative")
     }
 
-    if (sum(weights) != n){
-        stop("\'weights\' must sum to n")
+    if (abs(sum(weights)-n) > 1e-10){
+        if (abs(sum(weights) - 1) > 1e-10){
+            weights = n * weights
+        } else {
+            warning("Warning: \'weights\' don't sum to n")
+        }
     }
 
     side <- side[1]
     avals_type <- avals_type[1]
     tautype <- tautype[1]    
     if (is.null(avals)){
-        if (avals_type == "manual"){
+        if (!any(avals_type == c("manual", "BH", "geom", "bonf"))){
+            stop("avals_type invalid")
+        } else if (avals_type == "manual"){
             stop("avals must be inputted when avals_type = \"manual\"")
         } else if (avals_type == "geom" && geom_fac <= 1){
             stop("geom_fac must be larger than 1 when avals_type = \"geom\"")

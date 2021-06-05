@@ -17,7 +17,7 @@ dBH_mvgauss_qc <- function(zvals,
     pvals <- zvals_pvals(zvals, side)
     wpvals <- pvals/weights
     qvals <- qvals_BH_reshape(wpvals, avals)
-    obj <- RBH_init(qvals, alpha, alpha0,
+    obj <- RBH_init(weights, qvals, alpha, alpha0,
                     avals, is_safe, qcap)
 
     if (length(obj$cand) == 0){
@@ -57,6 +57,7 @@ dBH_mvgauss_qc <- function(zvals,
             geom_fac = geom_fac,
             weight = weights[i],
             weightminus = weights[-i])
+        counter <- 1
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -65,9 +66,8 @@ dBH_mvgauss_qc <- function(zvals,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (knots[1] < 0){
-                knots <- rev(abs(knots))
-                ## This requires the null distribution to be symmetric
+            if (counter == 2){
+                knots <- rev(-knots)
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -88,6 +88,7 @@ dBH_mvgauss_qc <- function(zvals,
                 thra <- rep(1, length(nrejs))
             }
             thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
+            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 
@@ -105,6 +106,7 @@ dBH_mvgauss_qc <- function(zvals,
             geom_fac = geom_fac,
             weight = weights[i],
             weightminus = weights[-i])
+        counter <- 1
         res_alpha0 <- lapply(res_alpha0, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -113,9 +115,8 @@ dBH_mvgauss_qc <- function(zvals,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (knots[1] < 0){
-                knots <- rev(abs(knots))
-                ## This requires the null distribution to be symmetric
+            if (counter == 2){
+                knots <- rev(-knots)
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -139,6 +140,7 @@ dBH_mvgauss_qc <- function(zvals,
             knots_lo <- head(knots, -1)
             knots_hi <- tail(knots, -1)
             nrejs <- nrejs + ((knots_lo + knots_hi) / 2 < thr)
+            counter <<- counter + 1
             list(knots = knots, nrejs = nrejs)
         })
 

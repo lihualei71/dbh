@@ -85,6 +85,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
             geom_fac = geom_fac,
             weight = weights[i],
             weightminus = weights[-i])
+        counter <- 1
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -93,9 +94,8 @@ dBH_mvgauss_qc_grid <- function(zvals,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (knots[1] < 0){
-                knots <- rev(abs(knots))
-                ## This requires the null distribution to be symmetric
+            if (counter == 2){
+                knots <- rev(-knots)
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -116,6 +116,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                 thra <- rep(1, length(nrejs))
             }
             thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
+            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 

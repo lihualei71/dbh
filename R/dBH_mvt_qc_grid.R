@@ -84,7 +84,10 @@ dBH_mvt_qc_grid <- function(tvals, df,
             high = high,
             avals = avals,
             avals_type = avals_type,
-            geom_fac = geom_fac)
+            geom_fac = geom_fac,
+            weight = weights[i],
+            weightminus = weights[-i])
+        counter <- 1
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -93,9 +96,8 @@ dBH_mvt_qc_grid <- function(tvals, df,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (knots[1] < 0){
-                knots <- rev(abs(knots))
-                ## This requires the null distribution to be symmetric
+            if (counter == 2){
+                knots <- rev(-knots)
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -115,7 +117,8 @@ dBH_mvt_qc_grid <- function(tvals, df,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qt(thra * qvals[i] / n / ntails, df = df, lower.tail = FALSE)
+            thr <- qt(thra * qvals[i] * weights[i] / n / ntails, df = df, lower.tail = FALSE)
+            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 

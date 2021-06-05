@@ -57,7 +57,7 @@ BH <- function(pvals, alpha = 0.05, avals = 1:length(pvals),
 }
 
 # Compute the rejection-corrected vector given thresholds and a-values. Equivalent to compute_mod_nrejs when avals = 1:length(thresh)
-# NOTE: Assumes thresh is in decreasing order
+# NOTE: Assumes thresh is in increasing order
 compute_RCV <- function(x, thresh, avals){
     ord <- order(c(x, thresh), decreasing = FALSE)
     ones.zeros <- c(rep(1, length(x)), rep(0, length(thresh)))[ord]
@@ -130,14 +130,14 @@ nrejs_BH <- function(pvals, alpha){
     max(0, which(adjust_pvals <= 1))
 }
 
-RBH_init <- function(qvals, alpha, alpha0,
+RBH_init <- function(weights, qvals, alpha, alpha0,
                      avals, is_safe, qcap){
     n <- length(qvals)
-    dBH_rej0 <- (1:n)[qvals <= alpha0]
+    dBH_rej0 <- which(qvals <= alpha0)
     Rinit <- rep(length(dBH_rej0) + 1, n)
     Rinit[dBH_rej0] <- Rinit[dBH_rej0] - 1
 
-    init_rejlist <- which(qvals <= alpha / max(avals))    
+    init_rejlist <- union(which(qvals <= alpha / max(avals)), which(weights * qvals >= 1 && qvals < qcap * alpha))
     if (is_safe){
         init_rejlist <- union(dBH_rej0, init_rejlist)
     }
