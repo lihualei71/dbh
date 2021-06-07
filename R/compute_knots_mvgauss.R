@@ -27,12 +27,13 @@ thresh_bounds_mvgauss <- function(coef1, coef2, low, high){
 #   roots:  n-vector of values z at which a + b * z = thresh
 #   sgn:    n-vector: sgn = 1 means upcrossing, sgn = -1 means downcrossing
 #   posit:  n-vector: which of the n thresholds is crossed at each root
-linroots_mvgauss <- function(a, b, thresh){
+linroots_mvgauss <- function(a, b, thresh, low, high){
     roots <- (thresh - a) / b
+    ids <- which(roots >= low & roots <= high)
     n <- length(thresh)
     sgn <- rep(sign(b), n)
     posit <- 1:n
-    return(list(roots = roots, sgn = sgn, posit = posit))
+    return(list(roots = roots[ids], sgn = sgn[ids], posit = posit[ids]))
 }
 
 # Find locations of z[1] at which RBH changes, holding the conditioning statistic fixed
@@ -165,7 +166,7 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
                 thrids <- 1
                 thr <- qnorm(pmin(1, alpha * weights[i] * avals / n), lower.tail = FALSE)
             }
-            sol <- linroots_mvgauss(coef1[i], coef2[i], thr)
+            sol <- linroots_mvgauss(coef1[i], coef2[i], thr, tail_lbound[tail], tail_ubound[tail]))
             knots[[k]] <- sol$roots * thrsgn[i]  # locations of z[1] where threshold crossed
             nroots <- length(sol$roots)
             hyp[[k]] <- rep(hypid[i], nroots)    # which coordinate crossed
