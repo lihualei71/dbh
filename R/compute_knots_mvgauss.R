@@ -10,11 +10,13 @@ recover_stats_mvgauss <- function(zstat, newz, s, cor){
 }
 
 # Compute a bounding box for (coef1 + coef2 * z: low <= z <= high)
-thresh_bounds_mvgauss <- function(coef1, coef2, low, high){
+thresh_bounds_mvgauss <- function(coef1, coef2, low, high, kappa_thr){
     bound1 <- coef1 + coef2 * low
     bound2 <- coef1 + coef2 * high
     lower <- pmin(bound1, bound2)
+    lower <- pmax(lower, kappa_thr)
     upper <- pmax(bound1, bound2)
+    upper <- pmax(upper, kappa_thr)
     list(lower = lower, upper = upper)
 }
 
@@ -49,10 +51,10 @@ linroots_mvgauss <- function(a, b, thresh, low, high){
 #   res:    List of length one or two (number of tails). First element gives info about all
 #           possible knots of the RBH function as z varies from low to high, second element
 #           gives same for all possible knots as z varies from -high to -low.
-compute_knots_mvgauss <- function( zstat, zminus, cor,
+compute_knots_mvgauss <- function(zstat, zminus, cor,
                                   alpha, side,
                                   low, high,
-                                  avals, avals_type, geom_fac, weight, weightminus
+                                  avals, avals_type, geom_fac, kappa, weight, weightminus
                                   ){
     n <- length(zminus) + 1
     navals <- length(avals)
@@ -104,7 +106,8 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
 
     # Compute bounding box of z[i] (and -z[i] for 2-sided), as z[1] varies
     #      between low and high (and -high and -low, for 2-sided)
-    thr_bounds <- thresh_bounds_mvgauss(coef1, coef2, low, high)
+    kappa_thr = qnorm(kappa, lower.tail = FALSE)
+    thr_bounds <- thresh_bounds_mvgauss(coef1, coef2, low, high, kappa_thr)
     if (navals > 1){
         thrid_upper <- floor(pnorm(thr_bounds$lower, lower.tail = FALSE) / weights * n / alpha - 1e-15)
         thrid_lower <- ceiling(pnorm(thr_bounds$upper, lower.tail = FALSE) / weights * n / alpha + 1e-15)
@@ -166,7 +169,7 @@ compute_knots_mvgauss <- function( zstat, zminus, cor,
                 thrids <- 1
                 thr <- qnorm(pmin(1, alpha * weights[i] * avals / n), lower.tail = FALSE)
             }
-            sol <- linroots_mvgauss(coef1[i], coef2[i], thr, tail_lbound[tail], tail_ubound[tail]))
+            sol <- linroots_mvgauss(coef1[i], coef2[i], thr, tail_lbound[tail], tail_ubound[tail])
             knots[[k]] <- sol$roots * thrsgn[i]  # locations of z[1] where threshold crossed
             nroots <- length(sol$roots)
             hyp[[k]] <- rep(hypid[i], nroots)    # which coordinate crossed

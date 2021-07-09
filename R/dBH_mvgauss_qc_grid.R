@@ -12,6 +12,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 qcap = 2,
                                 gridsize = 20,
                                 exptcap = 0.9,
+                                kappa = 0.5,
                                 verbose = FALSE){
     n <- length(zvals)
     alpha0 <- gamma * alpha
@@ -30,6 +31,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                         geom_fac = geom_fac,
                         eps = eps,
                         qcap = qcap,
+                        kappa = kappa, 
                         verbose = FALSE)
     params <- c(params_root, list(zvals = zvals))
     res_init <- do.call(dBH_mvgauss_qc, params)
@@ -62,7 +64,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     ncands <- length(cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- cand[id]
-        low <- qnorm(qvals[i] * weights[i] * max(avals) / n / ntails, lower.tail = FALSE)
+        low <- qnorm(min(qvals[i] * weights[i] * max(avals) / n / ntails, kappa), lower.tail = FALSE)
         high <- qnorm(weights[i] * alpha * eps / n / ntails, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
@@ -83,9 +85,10 @@ dBH_mvgauss_qc_grid <- function(zvals,
             avals = avals,
             avals_type = avals_type,
             geom_fac = geom_fac,
+            kappa = kappa,
             weight = weights[i],
             weightminus = weights[-i])
-        counter <- 1
+        
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -94,8 +97,9 @@ dBH_mvgauss_qc_grid <- function(zvals,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (counter == 2){
-                knots <- rev(-knots)
+            if (knots[1] < 0){
+                knots <- rev(abs(knots))
+                ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -116,7 +120,6 @@ dBH_mvgauss_qc_grid <- function(zvals,
                 thra <- rep(1, length(nrejs))
             }
             thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
-            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 

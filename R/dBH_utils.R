@@ -130,18 +130,18 @@ nrejs_BH <- function(pvals, alpha){
     max(0, which(adjust_pvals <= 1))
 }
 
-RBH_init <- function(weights, qvals, alpha, alpha0,
-                     avals, is_safe, qcap){
-    n <- length(qvals)
+RBH_init <- function(pvals, qvals, alpha, alpha0,
+                     avals, is_safe, qcap, kappa){
+    n <- length(pvals)
     dBH_rej0 <- which(qvals <= alpha0)
     Rinit <- rep(length(dBH_rej0) + 1, n)
     Rinit[dBH_rej0] <- Rinit[dBH_rej0] - 1
 
-    init_rejlist <- union(which(qvals <= alpha / max(avals)), which(weights * qvals >= 1 && qvals < qcap * alpha))
+    init_rejlist <- which(qvals <= alpha / max(avals))
     if (is_safe){
         init_rejlist <- union(dBH_rej0, init_rejlist)
     }
-    init_acclist <- which(qvals >= qcap * alpha)
+    init_acclist <- which(qvals >= qcap * alpha | pvals > kappa)
     cand <- 1:n
     tmp <- c(init_rejlist, init_acclist)
     if (length(tmp) > 0){

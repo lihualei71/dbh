@@ -36,7 +36,7 @@ dBH_mvt_qc <- function(tvals, df,
     ncands <- length(obj$cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
-        low <- qt(weights[i] * qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE)
+        low <- max(0, qt(weights[i] * qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE))
         high <- qt(weights[i] * alpha * eps / n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]

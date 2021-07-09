@@ -162,6 +162,7 @@ dBH_mvgauss <- function(zvals,
                         gridsize = 20,
                         exptcap = 0.9,
                         is_safe = NULL,
+                        kappa = 0.5,
                         verbose = FALSE){
     n <- length(zvals)    
     if (niter > 2){
@@ -182,6 +183,16 @@ dBH_mvgauss <- function(zvals,
         } else {
             warning("Warning: \'weights\' don't sum to n")
         }
+    }
+
+    if (kappa > 0.5) {
+        kappa = 0.5
+        warning("The censoring level kappa is suggested to set to below 0.5")
+    }
+
+    if(kappa < 0) {
+        kappa = 0.5
+        warning("The censoring level should be positive")
     }
 
     side <- side[1]
@@ -264,6 +275,7 @@ dBH_mvgauss <- function(zvals,
                            geom_fac = geom_fac,
                            eps = eps,
                            qcap = qcap,
+                           kappa = kappa,
                            verbose = verbose)
         }
     } else if (niter == 2){
@@ -283,6 +295,7 @@ dBH_mvgauss <- function(zvals,
                                 qcap = qcap,
                                 gridsize = gridsize,
                                 exptcap = exptcap,
+                                kappa = kappa,
                                 verbose = verbose)
         }
     }
