@@ -99,7 +99,7 @@ quadroots_mvt <- function(a, b, thresh){
 compute_knots_mvt <- function(tstat, tminus, df, cor,
                               alpha, side,
                               low, high,
-                              avals, avals_type, geom_fac,
+                              avals, avals_type, geom_fac, kappa,
                               weight, weightminus
                               ){
     n <- length(tminus) + 1
@@ -168,8 +168,8 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
     #      between low and high (and -high and -low, for 2-sided)    
     thr_bounds <- thresh_bounds_mvt(coef1, coef2, low, high)
     if (navals > 1){
-        thrid_upper <- floor(pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE) / weights[ids] * n / alpha - 1e-15)
-        thrid_lower <- ceiling(pt(thr_bounds$upper * sqdf, df = df, lower.tail = FALSE) / weights[ids] * n / alpha + 1e-15)
+        thrid_upper <- floor(pmin(kappa, pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE)) / weights[ids] * n / alpha - 1e-15)
+        thrid_lower <- ceiling(pmin(kappa, pt(thr_bounds$upper * sqdf, df = df, lower.tail = FALSE)) / weights[ids] * n / alpha + 1e-15)
         if (avals_type == "geom"){
             thrid_upper <- find_ind_geom_avals(geom_fac, thrid_upper, "max")
             thrid_lower <- find_ind_geom_avals(geom_fac, thrid_lower, "min")
@@ -180,9 +180,9 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
         rmids <- which(thrid_lower > navals | thrid_upper < 1 | thrid_upper < thrid_lower) # Which coordinates aren't removed
         ids <- (1:length(coef1))[-rmids]
     } else {
-        thresh <- qt(pmin(1, weights * alpha * avals / n), df = df, lower.tail = FALSE)
-        thresh <- thresh / sqdf
-        ids <- (1:length(ids))[thr_bounds$lower <= thresh & thr_bounds$upper >= thresh]
+        thrid_upper <- floor(pmin(kappa, pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE)) / weights[ids] * n / alpha - 1e-15)
+        thrid_lower <- ceiling(pmin(kappa, pt(thr_bounds$upper * sqdf, df = df, lower.tail = FALSE)) / weights[ids] * n / alpha + 1e-15)
+        ids <- (1:length(ids))[thrid_upper >= weights[ids] * alpha * avals / n & thrid_lower <= weights[ids] * alpha * avals / n]
     }
 
     res <- list()

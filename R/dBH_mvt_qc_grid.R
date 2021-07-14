@@ -12,6 +12,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
                             qcap = 2,
                             gridsize = 20,
                             exptcap = 0.9,
+                            kappa = 0.5,
                             verbose = FALSE){
     n <- length(tvals)
     ntails <- ifelse(side == "two", 2, 1)    
@@ -30,6 +31,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
                         geom_fac = geom_fac,
                         eps = eps,
                         qcap = qcap,
+                        kappa = kappa,
                         verbose = FALSE)
     params <- c(params_root, list(tvals = tvals))
     res_init <- do.call(dBH_mvt_qc, params)
@@ -63,7 +65,7 @@ dBH_mvt_qc_grid <- function(tvals, df,
     ncands <- length(cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- cand[id]
-        low <- max(0, qt(weights[i] * qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE))
+        low <- qt(min(weights[i] * qvals[i] * max(avals) / n / ntails, kappa), df = df, lower.tail = FALSE)
         high <- qt(weights[i] * alpha * eps / n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
@@ -85,9 +87,9 @@ dBH_mvt_qc_grid <- function(tvals, df,
             avals = avals,
             avals_type = avals_type,
             geom_fac = geom_fac,
+            kappa = kappa,
             weight = weights[i],
             weightminus = weights[-i])
-        counter <- 1
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -96,8 +98,9 @@ dBH_mvt_qc_grid <- function(tvals, df,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (counter == 2){
-                knots <- rev(-knots)
+            if (knots[1] < 0){
+                knots <- rev(abs(knots))
+                ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -118,7 +121,6 @@ dBH_mvt_qc_grid <- function(tvals, df,
                 thra <- rep(1, length(nrejs))
             }
             thr <- qt(thra * qvals[i] * weights[i] / n / ntails, df = df, lower.tail = FALSE)
-            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 

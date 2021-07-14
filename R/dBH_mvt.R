@@ -170,6 +170,7 @@ dBH_mvt <- function(tvals, df,
                     gridsize = 20,
                     exptcap = 0.9,
                     is_safe = NULL,
+                    kappa = 0.5,
                     verbose = FALSE){
     n <- length(tvals)
     
@@ -191,6 +192,16 @@ dBH_mvt <- function(tvals, df,
         } else {
             warning("Warning: \'weights\' don't sum to n")
         }
+    }
+    
+    if (kappa > 0.5) {
+        kappa = 0.5
+        warning("The censoring level kappa is suggested to set to below 0.5")
+    }
+
+    if(kappa < 0) {
+        kappa = 0.5
+        warning("The censoring level should be positive")
     }
     
     side <- side[1]
@@ -277,6 +288,7 @@ dBH_mvt <- function(tvals, df,
                        geom_fac = geom_fac,
                        eps = eps,
                        qcap = qcap,
+                       kappa = 0.5,
                        verbose = verbose)
         }
     } else if (niter == 2){
@@ -297,6 +309,7 @@ dBH_mvt <- function(tvals, df,
                             qcap = qcap,
                             gridsize = gridsize,
                             exptcap = exptcap,
+                            kappa = 0.5,
                             verbose = verbose)
         }
     }

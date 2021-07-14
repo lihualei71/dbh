@@ -18,6 +18,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
     pvals <- zvals_pvals(zvals, side)
+    pvals[which(pvals > kappa)] = Inf
     wpvals <- pvals/weights
     qvals <- qvals_BH_reshape(wpvals, avals)
     

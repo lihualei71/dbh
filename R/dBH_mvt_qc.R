@@ -10,15 +10,17 @@ dBH_mvt_qc <- function(tvals, df,
                        geom_fac = 2,
                        eps = 0.05,
                        qcap = 2,
+                       kappa = 0.5,
                        verbose = FALSE){
     n <- length(tvals)
     alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
     pvals <- tvals_pvals(tvals, df, side)
+    pvals[which(pvals > kappa)] <- Inf
     wpvals <- pvals/weights
     qvals <- qvals_BH_reshape(wpvals, avals)
-    obj <- RBH_init(weights, qvals, alpha, alpha0,
-                    avals, is_safe, qcap)
+    obj <- RBH_init(pvals, qvals, alpha, alpha0,
+                    avals, is_safe, qcap, kappa)
     
     if (length(obj$cand) == 0){
         return(list(rejs = obj$init_rejlist,
@@ -36,7 +38,7 @@ dBH_mvt_qc <- function(tvals, df,
     ncands <- length(obj$cand)
     cand_info <- sapply(1:ncands, function(id){
         i <- obj$cand[id]
-        low <- max(0, qt(weights[i] * qvals[i] * max(avals) / n / ntails, df = df, lower.tail = FALSE))
+        low <- qt(min(weights[i] * qvals[i] * max(avals) / n / ntails, kappa), df = df, lower.tail = FALSE)
         high <- qt(weights[i] * alpha * eps / n / ntails, df = df, lower.tail = FALSE)
         if (!is.null(Sigma)){
             cor <- Sigma[-i, i]
@@ -57,9 +59,9 @@ dBH_mvt_qc <- function(tvals, df,
             avals = avals,
             avals_type = avals_type,
             geom_fac = geom_fac,
+            kappa = kappa,
             weight = weights[i],
             weightminus = weights[-i])
-        counter <- 1
         res_q <- lapply(res_q, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -68,8 +70,9 @@ dBH_mvt_qc <- function(tvals, df,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (counter == 2){
-                knots <- rev(-knots)
+            if (knots[1] < 0){
+                knots <- rev(abs(knots))
+                ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -90,7 +93,6 @@ dBH_mvt_qc <- function(tvals, df,
                 thra <- rep(1, length(nrejs))
             }
             thr <- qt(thra * qvals[i] * weights[i] / n / ntails, df = df, lower.tail = FALSE)
-            counter <<- counter + 1
             list(knots = knots, thr = thr)
         })
 
@@ -106,9 +108,9 @@ dBH_mvt_qc <- function(tvals, df,
             avals = avals,
             avals_type = avals_type,
             geom_fac = geom_fac,
+            kappa = kappa,
             weight = weights[i],
             weightminus = weights[-i])
-        counter <- 1
         res_alpha0 <- lapply(res_alpha0, function(re){
             RBH <- RejsBH(re$posit, re$sgn, re$RCV, avals)
             knots <- c(re$low, re$knots)
@@ -117,8 +119,9 @@ dBH_mvt_qc <- function(tvals, df,
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
             knots <- c(knots, re$high)        
             knots <- knots[cutinds]
-            if (counter == 2){
-                knots <- rev(-knots)
+            if (knots[1] < 0){
+                knots <- rev(abs(knots))
+                ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
@@ -144,7 +147,6 @@ dBH_mvt_qc <- function(tvals, df,
             ## All intervals either below thr or above thr
             ## For stability, we compare thr with the midpoint
             nrejs <- nrejs + ((knots_lo + knots_hi) / 2 < thr)
-            counter <<- counter + 1
             list(knots = knots, nrejs = nrejs)
         })
 

@@ -178,7 +178,7 @@ dBH_mvgauss <- function(zvals,
     }
 
     if (abs(sum(weights)-n) > 1e-10){
-        if (abs(sum(weights) - 1) > 1e-10){
+        if (abs(sum(weights) - 1) < 1e-10){
             weights = n * weights
         } else {
             warning("Warning: \'weights\' don't sum to n")
