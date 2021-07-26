@@ -107,8 +107,11 @@ compute_knots_mvgauss <- function(zstat, zminus, cor,
         }
         rmids <- which(thrid_lower > navals |
                        thrid_upper < 1 |
-                       thrid_upper < thrid_lower) # Which coordinates aren't removed
-        ids <- (1:length(coef1))[-rmids]
+                       thrid_upper < thrid_lower) # Which coordinates are removed
+        ids <- 1:length(coef1)
+        if (length(rmids) > 0){
+            ids <- ids[-rmids]
+        }
     } else {
         ids <- (1:length(coef1))[thr_bounds$lower <= thresh & thr_bounds$upper >= thresh]
     }
