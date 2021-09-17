@@ -150,7 +150,11 @@ dBH_mvgauss <- function(zvals,
                         Sigmafun = NULL,
                         vars = NULL,
                         side = c("right", "left", "two"),
+                        covariates = NULL,
+                        group_max = 10,
                         weights = rep(1, length(zvals)),
+                        weight_type = "optimal",
+                        MC = 1,
                         alpha = 0.05, gamma = NULL,
                         niter = 1,
                         tautype = "QC",
@@ -169,21 +173,42 @@ dBH_mvgauss <- function(zvals,
         stop("\'niter\' can only be 1 or 2.")
     }
 
-    if (length(weights) != n){
-        stop("\'weights\' must be a vector of length n")
-    }
-
-    if (sum(weights < 0) > 0){
-        stop("\'weights\' must be non-negative")
-    }
-
-    if (abs(sum(weights)-n) > 1e-10){
-        if (abs(sum(weights) - 1) < 1e-10){
-            weights = n * weights
-        } else {
-            warning("Warning: \'weights\' don't sum to n")
+    if (weight_type == "trivial") {
+        weights <- rep(1, n)
+    } else if (is.null(covariates)) {
+        if (length(weights) != n){
+            stop("\'weights\' must be a vector of length n")
         }
+
+        if (sum(weights < 0) > 0){
+            stop("\'weights\' must be non-negative")
+        }
+
+        if (abs(sum(weights)-n) > 1e-10){
+            if (abs(sum(weights) - 1) < 1e-10){
+                weights = n * weights
+            } else {
+                warning("Warning: \'weights\' don't sum to n")
+            }
+        }
+    } else {
+        if (length(covariates) != n) {
+            stop("\'covariates\' must be a vector of length n")
+        }
+
+        if (is.numeric(covariates) | is.factor(covariates)){
+          if(length(unique(covariates)) < group_max) {
+            groups <- covariates
+          } else {
+            groups <- groups_by_filter(covariates, group_max)
+          }
+        } else {
+          stop("Covariates are not of the appropriate type")
+        }
+        weights <- NULL
     }
+
+
 
     if (kappa > 0.5) {
         kappa = 0.5
@@ -262,21 +287,42 @@ dBH_mvgauss <- function(zvals,
     
     if (niter == 1){
         if (tautype == "QC"){
-            dBH_mvgauss_qc(zvals = zvals,
-                           Sigma = Sigma,
-                           Sigmafun = Sigmafun,
-                           side = side,
-                           weights = weights,
-                           alpha = alpha,
-                           gamma = gamma,
-                           is_safe = is_safe,
-                           avals = avals,
-                           avals_type = avals_type,
-                           geom_fac = geom_fac,
-                           eps = eps,
-                           qcap = qcap,
-                           kappa = kappa,
-                           verbose = verbose)
+            if(weight_type == "optimal") {
+                dBH_mvgauss_qc_optimal(
+                   zvals = zvals,
+                   Sigma = Sigma,
+                   Sigmafun = Sigmafun,
+                   side = side,
+                   MC = MC,
+                   groups = groups,
+                   alpha = alpha,
+                   gamma = gamma,
+                   is_safe = is_safe,
+                   avals = avals,
+                   avals_type = avals_type,
+                   geom_fac = geom_fac,
+                   eps = eps,
+                   qcap = qcap,
+                   kappa = kappa,
+                   verbose = verbose)
+            } else {
+                dBH_mvgauss_qc(zvals = zvals,
+                               Sigma = Sigma,
+                               Sigmafun = Sigmafun,
+                               side = side,
+                               weights = weights,
+                               alpha = alpha,
+                               gamma = gamma,
+                               is_safe = is_safe,
+                               avals = avals,
+                               avals_type = avals_type,
+                               geom_fac = geom_fac,
+                               eps = eps,
+                               qcap = qcap,
+                               kappa = kappa,
+                               verbose = verbose)
+            }
+
         }
     } else if (niter == 2){
         if (tautype == "QC"){
