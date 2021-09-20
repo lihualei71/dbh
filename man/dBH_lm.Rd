@@ -19,7 +19,7 @@ dBH_lm(
   avals_type = c("BH", "geom", "bonf", "manual"),
   geom_fac = 2,
   eps = 0.05,
-  qcap = TRUE,
+  qcap = 2,
   gridsize = 20,
   exptcap = 0.9,
   is_safe = NULL,

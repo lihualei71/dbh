@@ -171,7 +171,7 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
             thrid_lower <- find_posit_vec(thrid_lower, avals, "right", FALSE)
         }
         rmids <- which(thrid_lower > navals | thrid_upper < 1 | thrid_upper < thrid_lower) # Which coordinates are removed
-        ids <- (1:length(coef1))[-rmids]
+        ids <- (1:length(coef1))
         if (length(rmids) > 0){
             ids <- ids[-rmids]
         }
