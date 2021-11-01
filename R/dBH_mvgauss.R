@@ -154,6 +154,7 @@ dBH_mvgauss <- function(zvals,
                         group_max = 10,
                         weights = rep(1, length(zvals)),
                         weight_type = "optimal",
+                        lfdrinv_type = "max",
                         MC = 1,
                         alpha = 0.05, gamma = NULL,
                         niter = 1,
@@ -287,7 +288,7 @@ dBH_mvgauss <- function(zvals,
     
     if (niter == 1){
         if (tautype == "QC"){
-            if(weight_type == "optimal") {
+            if(weight_type == "optimal" & is.null(weights)) {
                 dBH_mvgauss_qc_optimal(
                    zvals = zvals,
                    Sigma = Sigma,
@@ -295,6 +296,7 @@ dBH_mvgauss <- function(zvals,
                    side = side,
                    MC = MC,
                    groups = groups,
+                   lfdrinv_type = lfdrinv_type,
                    alpha = alpha,
                    gamma = gamma,
                    is_safe = is_safe,

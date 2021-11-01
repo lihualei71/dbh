@@ -8,17 +8,18 @@ adaptive_optimal.weights <- function(groups,
                                      pi0Est = F) {
   weights <- c()
   lfdr_g <- list()
+  zvals_g <- list()
   ngroups <- length(unique(groups))
   pi0_g <- c()
   n_g <- c()
   for(i in 1: ngroups) {
     g <- unique(groups)[i]
-    zvals_g <- zvals[groups == g]
+    zvals_g[[i]] <- zvals[groups == g]
     n_g[i] <- sum(groups == g)
-    lfdrres <- locfdr(zvals_g, nulltype = 0, plot = 0)
+    lfdrres <- locfdr(zvals_g[[i]], nulltype = 0, plot = 0)
     if(side == "one") {
       lfdr_g[[i]] <- lfdrres$fdr
-      lfdr_g[[i]][which(sign(zvals_g) < 0)] <- 1
+      lfdr_g[[i]][which(sign(zvals_g[[i]]) < 0)] <- 1
     } else {
       #lfdr_g[[i]] <- lfdrres$fdr
     }
@@ -30,27 +31,27 @@ adaptive_optimal.weights <- function(groups,
   lfdr <- unlist(lfdr_g, F, F)
   lfdr.order <- order(lfdr)
   st.lfdr <- lfdr[lfdr.order]
-  k = max(which(cumsum(st.lfdr)/(1:n) <= alpha))
-  thr <- st.lfdr[k]
   
-  st.groups <- groups[lfdr.order]
-  st.pvals <- (zvals_pvals(zvals, side))[lfdr.order]
+  a <- which(cumsum(st.lfdr)/(1:n) <= alpha)
+  k <- ifelse(length(a) == 0, 1, max(a))
+  thr <- st.lfdr[k]
   
   t_g <- c()
   thr_diff <- c()
   for(j in 1:ngroups) {
-    g <- unique(groups)[j]
-    st.lfdr_g <- st.lfdr[st.groups == j]
-    st.pvals_g <- st.pvals[st.groups == j]
+    o <- order(lfdr_g[[j]])
+    st.lfdr_g <- lfdr_g[[j]][o]
+    st.pvals_g <- zvals_pvals(zvals_g[[j]], side)[o]
+    
     if(type == "lin") {
       t_g[j] <- approx(x = st.lfdr_g, y = st.pvals_g, xout = thr, yleft = 0, yright = 1, method="linear", ties = mean)$y
     } else if(type == "lin_exp") {
-      t_g[j] <- exp(approx(x = st.lfdr_g, y = log(st.pvals_g), xout = thr, yleft = -99999, yright = 0, method="linear", ties = mean)$y)
+      t_g[j] <- exp(approx(x = c(st.lfdr_g), y = c(log(st.pvals_g)), xout = thr, yleft = -99999, yright = 0, method="linear", ties = mean)$y)
     } else if(type == "max") {
-      if(!any(which(st.lfdr_g < thr))) {
+      if(!any(which(st.lfdr_g <= thr))) {
         t_g[j] <- 0
       } else {
-        cut_index <- max(which(st.lfdr_g < thr))
+        cut_index <- max(which(st.lfdr_g <= thr))
         thr_diff[j] <- thr - st.lfdr_g[cut_index]
         t_g[j] <- st.pvals_g[cut_index]
       }
@@ -59,11 +60,10 @@ adaptive_optimal.weights <- function(groups,
     }
   }
   
-  if(sum(t_g*pi_g*pi0_g) < 1e-6) {
+  if(sum(t_g*pi_g*pi0_g) < 1e-6 | any(t_g < 1e-5)) {
     return(rep(1/sum(pi_g*pi0_g), length(zvals)))
   }
-  #?
-  t_g.init <- t_g
+  #t_g.init <- t_g
   
   t_g <- t_g/sum(t_g*pi_g*pi0_g)
   
@@ -72,7 +72,7 @@ adaptive_optimal.weights <- function(groups,
     weights[groups == g] <- t_g[j]
   }
   
-  return(list(weights = weights, thr = thr, t_g = t_g, t_g.init = t_g.init, thr_diff = thr_diff))
+  return(weights)
 }
 
 
@@ -109,9 +109,6 @@ oracle.weights <- function(alpha, n_g, pi0_g, mu1_g, pi0Est = T) {
   }
   return(w)
 }
-
-
-unique(oracle.weights(alpha, n_g, pi0_g, mu1_g, pi0Est = F))
 
 
 lfdr.inverse <- function(lfdr, pi0, mu1){

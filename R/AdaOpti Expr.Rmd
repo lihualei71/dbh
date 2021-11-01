@@ -1,0 +1,533 @@
+---
+title: "dwbh_optimal"
+author: "Mengqi LIn"
+date: "9/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+source("compute_knots_mvgauss.R")
+source("dBH_mvgauss.R")
+source("dBH_mvgauss_qc.R" )
+source("dBH_mvgauss.R")
+source("adapOptimal_weights.R")
+source("dBH_mvgauss_qc_optimal.R")
+source("dBH_utils.R")
+source("RcppExports.R")
+source("import-packages.R")
+library(Rcpp)
+sourceCpp("RBH_homotopy.cpp")
+```
+
+
+```{r}
+n_g = c(1000,1000) 
+mu1_g = c(2, 5)
+pi1_g = c(0.1, 0.1)
+pi0_g = 1-pi1_g
+alpha <- 0.05
+ow <- oracle.weights(alpha, n_g, pi0_g, mu1_g, F)
+ow <- unique(ow)
+ow
+```
+
+```{r}
+set.seed(1)
+data <- gen_data(n_g, mu1_g, pi1_g, rho = 0.8, Sigma_type = "AR", side = "one", nreps = 100)
+ZVALS <- data$zvals
+groups <- data$groups
+H0 <- data$H0
+Sigma <- data$Sigma
+sqrtSigma <- data$sqrtSigma
+```
+
+
+```{r}
+plot(H0)
+plot(groups)
+```
+
+```{r}
+dBH_mvgauss(zvals = ZVALS[[3]],
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  avals_type = "BH",
+  qcap = 2,
+  lfdrinv_type = "max")
+#925  926 1015 1016 1017 1018 1083 1084
+```
+
+```{r}
+
+```
+
+
+
+
+```{r}
+dbh <- dBH_mvgauss(zvals = ZVALS[[19]],
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  avals_type = "BH",
+  qcap = 2,
+  lfdrinv_type = "lin_exp")
+#925  926 1015 1016 1017 1018 1083 1084
+dbh
+```
+
+```{r}
+testsecBH <- function(dbh) {
+  ## candidate that were rejected initially but has secBH_fac > 1 (possibly pruned later)
+  nrejs <- length(dbh$initrejs)
+ sec <- dbh$initrejs[which(dbh$secBH_fac>1)] 
+ Rinit <- nrejs * dbh$secBH_fac[which(dbh$secBH_fac>1)] 
+ group1 <- which(sec<=n_g[1])
+ group2 <- which(sec>n_g[1])
+ w1 <- dbh$weights[match(sec[group1],dbh$cand)]
+ w2 <- 2 - dbh$weights[match(sec[group2],dbh$cand)]
+ w <- c(w1, w2)
+ return(list(cand = sec, Rinit = Rinit, weight1 = w))
+}
+t <- testsecBH(dbh)
+# abw <- dbh$initrejs[which(dbh$secBH_fac>1)]
+# abw
+# dbh$weights[match(abw,dbh$cand)]
+# ow
+# sort(dbh$weights[match(abw,dbh$cand)])
+# dbh$cand[match(sec[group2],dbh$cand)]
+
+plot(pvals)
+testRinit <- function(t) {
+  pvals <- zvals_pvals(ZVALS[[19]], "one")
+  pvals[which(pvals > 0.5)] <- Inf
+  w <- t$weight1
+  m <- length(t$weight1)
+  sapply(1:m, function(id){
+    weights <- c(rep(w[id], n_g[1]), rep(2-w[id], n_g[2]))
+    bh <- BH(pvals/weights, reshape = F, alpha = alpha)
+    bh$nrejs
+  })
+}
+t$weight1
+testRinit(t) - t$Rinit
+BH(pvals)
+testsecBH(dbh)
+continuousR <- function(W) {
+  sapply(W, function(w){
+    weights <- c(rep(w, n_g[1]), rep(2-w, n_g[2]))
+    bh <- BH(pvals/weights, reshape = F, alpha = alpha)
+    bh$nrejs
+  })
+}
+plot(continuousR, from = 0, to = 2, xlab = "weight of group 1")
+points(t$weight1, t$Rinit, col = "red")
+abline(v = ow[1], col = "purple", lwd = 3)
+text(ow[1], 12, labels = "oracle weight 1")
+
+```
+
+```{r}
+dbh$weights[match(dbh$initrejs,dbh$cand)]
+sort(dbh$weights[match(dbh$initrejs,dbh$cand)])
+```
+
+
+```{r}
+dbh2 <- dBH_mvgauss(zvals = ZVALS[[2]],
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  avals_type = "BH",
+  qcap = 2,
+  lfdrinv_type = "max")
+#925  926 1015 1016 1017 1018 1083 1084
+dbh2
+```
+
+```{r}
+ow
+
+```
+
+
+unique(init_weights)
+[1] 0.5610545 1.4389455
+
+unique(adaptive_optimal.weights(groups = c(group, groupminus), 
+                        zvals = c(zstat, zminus), 
+                          alpha = alpha0, 
+                          side = side,
+                         type = lfdrinv_type))
+[1] 1.97836946 0.02163054
+
+
+
+k 
+[1] 13
+ st.lfdr[k]
+[1] 0.08963013
+
+
+```{r}
+col = c("red", "blue")
+pch = c(1, 4)
+dwbh_lin_exp <- lapply(1:20, function(i){
+  zv <- ZVALS[[i]]
+  d <- list()
+  
+  d[[1]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 5,
+  alpha = 0.05, gamma = 0.9,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "lin_exp",
+  avals_type = "BH")
+  
+  plot(c(0, 2.5), c(0, 2.5), type = 'n',
+   xlab = "group1",
+   ylab = "group2",
+   main = paste0("experiment ", i), axes = T)
+  
+  points(ow[1], ow[2], col = c("purple"), pch = 8, lwd = 3)
+  
+  for(j in 1){
+    dbh <- d[[j]]
+    candidate <- dbh$cand
+    w <- dbh$weights
+    
+    candg1 <- which(candidate <= n_g[1])
+    candg2 <- which(candidate > n_g[1])
+    
+    ncandg1 <- length(candg1)
+    ncandg2 <- length(candg2)
+    
+    if(ncandg1 > 0) {
+      hist(w)
+    }
+    
+    legend[j] <- ifelse(dbh$secBH,
+                        paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3)),
+                        "secBH: F")
+    # if(dbh$secBH) {
+    #   legend[j] = paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3))
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "max(secBH_fac): ", round(max(dbh$secBH_fac), 3)))
+    # } else {
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "secBH: ", dbh$secBH))
+    # }
+  }
+  
+  legend("topright", legend = legend, pch = pch, col = col)
+  abline(coef = c(2,-1))
+  abline(coef = c(0,1))
+  
+  return(d)
+})
+
+```
+
+
+
+```{r}
+dwbh_optimal1 <- lapply(1:50, function(i){
+  zv <- ZVALS[[i]]
+  d <- list()
+  
+  d[[1]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "max",
+  avals_type = "BH")
+  
+  d[[2]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "lin_exp",
+  avals_type = "BH")
+  
+  plot(c(0, 2.5), c(0, 2.5), type = 'n',
+   xlab = "group1",
+   ylab = "group2",
+   main = paste0("experiment ", i), axes = T)
+  points(ow[1], ow[2], col = c("purple"), pch = 8, lwd = 3)
+  
+  for(j in 1:2){
+    dbh <- d[[j]]
+    candidate <- dbh$cand
+    w <- dbh$weights
+    
+    candg1 <- which(candidate <= n_g[1])
+    candg2 <- which(candidate > n_g[1])
+    
+    ncandg1 <- length(candg1)
+    ncandg2 <- length(candg2)
+    
+    if(ncandg1 > 0) {
+      for(i in 1:ncandg1) {
+        points(w[i], 2-w[i], col = col[j], pch = pch[j])
+      }
+    }
+
+    if(ncandg2 > 0) {
+      for(i in (ncandg1 + 1):(ncandg1 + ncandg2)) {
+        points(2 - w[i], w[i], col = col[j], pch = pch[j])
+      }
+    }
+    
+    legend[j] <- ifelse(dbh$secBH,
+                        paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3)),
+                        "secBH: F")
+    # if(dbh$secBH) {
+    #   legend[j] = paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3))
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "max(secBH_fac): ", round(max(dbh$secBH_fac), 3)))
+    # } else {
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "secBH: ", dbh$secBH))
+    # }
+  }
+  
+  legend("topright", legend = legend, pch = pch, col = col)
+  abline(coef = c(2,-1))
+  abline(coef = c(0,1))
+  
+  return(d)
+})
+```
+
+
+
+```{r}
+col = c("red", "blue")
+pch = c(1, 4)
+
+dwbh_optimal2_gamma2 <- lapply(1:20, function(i){
+  zv <- ZVALS[[i]]
+  d <- list()
+  
+  d[[1]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = MC,
+  alpha = 0.05, gamma = 0.9,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "max",
+  avals_type = "BH")
+  
+  d[[2]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = MC,
+  alpha = 0.05, gamma = 0.9,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "lin_exp",
+  avals_type = "BH")
+  
+  plot(c(0, 2.5), c(0, 2.5), type = 'n',
+   xlab = "group1",
+   ylab = "group2",
+   main = paste0("experiment ", i), axes = T)
+  points(ow[1], ow[2], col = c("purple"), pch = 8, lwd = 3)
+  
+  for(j in 1:2){
+    dbh <- d[[j]]
+    candidate <- dbh$cand
+    w <- dbh$weights
+    
+    candg1 <- which(candidate <= n_g[1])
+    candg2 <- which(candidate > n_g[1])
+    
+    ncandg1 <- length(candg1)
+    ncandg2 <- length(candg2)
+    
+    if(ncandg1 > 0) {
+      for(i in 1:ncandg1) {
+        points(w[i], 2-w[i], col = col[j], pch = pch[j])
+      }
+    }
+
+    if(ncandg2 > 0) {
+      for(i in (ncandg1 + 1):(ncandg1 + ncandg2)) {
+        points(2 - w[i], w[i], col = col[j], pch = pch[j])
+      }
+    }
+    
+    legend[j] <- ifelse(dbh$secBH,
+                        paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3)),
+                        "secBH: F")
+    # if(dbh$secBH) {
+    #   legend[j] = paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3))
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "max(secBH_fac): ", round(max(dbh$secBH_fac), 3)))
+    # } else {
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "secBH: ", dbh$secBH))
+    # }
+  }
+  
+  legend("topright", legend = legend, pch = pch, col = col)
+  abline(coef = c(2,-1))
+  abline(coef = c(0,1))
+  
+  return(d)
+})
+```
+
+
+
+
+
+
+```{r}
+MC = 1
+dwbh_optimal3 <- lapply(1:20, function(i){
+  zv <- ZVALS[[i]]
+  d <- list()
+  
+  d[[1]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = MC,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "max",
+  avals_type = "BH")
+  
+  d[[2]] <- dBH_mvgauss(zvals = zv,
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = MC,
+  alpha = 0.05, gamma = NULL,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "lin_exp",
+  avals_type = "BH")
+  
+  plot(c(0, 2.5), c(0, 2.5), type = 'n',
+   xlab = "group1",
+   ylab = "group2",
+   main = paste0("experiment ", i), axes = T)
+  points(ow[1], ow[2], col = c("purple"), pch = 8, lwd = 3)
+  
+  for(j in 1:2){
+    dbh <- d[[j]]
+    candidate <- dbh$cand
+    w <- dbh$weights
+    
+    candg1 <- which(candidate <= n_g[1])
+    candg2 <- which(candidate > n_g[1])
+    
+    ncandg1 <- length(candg1)
+    ncandg2 <- length(candg2)
+    
+    if(ncandg1 > 0) {
+      for(i in 1:ncandg1) {
+        points(w[i], 2-w[i], col = col[j], pch = pch[j])
+      }
+    }
+
+    if(ncandg2 > 0) {
+      for(i in (ncandg1 + 1):(ncandg1 + ncandg2)) {
+        points(2 - w[i], w[i], col = col[j], pch = pch[j])
+      }
+    }
+    
+    legend[j] <- ifelse(dbh$secBH,
+                        paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3)),
+                        "secBH: F")
+    # if(dbh$secBH) {
+    #   legend[j] = paste0("max(secBH_fac): ", round(max(dbh$secBH_fac), 3))
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "max(secBH_fac): ", round(max(dbh$secBH_fac), 3)))
+    # } else {
+    #   text(2, (2 + 0.2*j), paste0(pch[j], "secBH: ", dbh$secBH))
+    # }
+  }
+  
+  legend("topright", legend = legend, pch = pch, col = col)
+  abline(coef = c(2,-1))
+  abline(coef = c(0,1))
+  
+  return(d)
+})
+```
+
+
+
+## cand 6
+
+```{r}
+
+set.seed(1)
+dBH_mvgauss(zvals = ZVALS[[2]],
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 0.9,
+  niter = 1,
+  tautype = "QC",
+  avals_type = "BH",
+  qcap = 2,
+  lfdrinv_type = "lin_exp",
+  is_safe = T)
+
+dBH_mvgauss(zvals = ZVALS[[1]],
+  Sigma = Sigma,
+  side = c("right"),
+  covariates = groups,
+  weight_type = "optimal",
+  MC = 1,
+  alpha = 0.05, gamma = 1,
+  niter = 1,
+  tautype = "QC",
+  lfdrinv_type = "lin_exp",
+  avals_type = "BH")
+  
+```
+

@@ -4,6 +4,7 @@ dBH_mvgauss_qc_optimal <- function(zvals,
                            side = c("one", "two"),
                            MC = NULL,
                            groups = NULL,
+                           lfdrinv_type = "max",
                            alpha = 0.05, gamma = NULL,
                            is_safe = FALSE,
                            avals = NULL, 
@@ -19,8 +20,12 @@ dBH_mvgauss_qc_optimal <- function(zvals,
     pvals <- zvals_pvals(zvals, side)
     pvals[which(pvals >= kappa)] = Inf
 
-    init_weights <- adaptive_optimal.weights(groups = groups, 
-                    zvals = zvals, alpha = alpha0, side = side)
+    init_weights <- adaptive_optimal.weights(
+                    groups = groups, 
+                    zvals = zvals, 
+                    alpha = alpha, 
+                    side = side,
+                    type = lfdrinv_type)
     init_qvals <- qvals_BH_reshape(pvals/init_weights, avals)
     init_acclist <- which(init_qvals >= qcap * alpha | pvals >= kappa)
     if (length(init_acclist) > 0){
@@ -58,7 +63,10 @@ dBH_mvgauss_qc_optimal <- function(zvals,
         mcz <- rnorm(MC)
         w <- sapply(mcz, function(z){
           adaptive_optimal.weights(groups = c(group, groupminus), 
-                                   zvals = c(z, s + cor * z), alpha = alpha0, side = side)
+                                   zvals = c(z, s + cor * z), 
+                                   alpha = alpha, 
+                                   side = side,
+                                   type = lfdrinv_type)
         })
 
         weights <- rowMeans(w)
@@ -67,13 +75,23 @@ dBH_mvgauss_qc_optimal <- function(zvals,
         qvals <- qvals_BH_reshape(reconsp/weights, avals)
         qval <- qvals[1]
         dBH_rej0 <- which(qvals <= alpha0)
-        Rinit <- ifelse(qval <= alpha0, length(dBH_rej0), length(dBH_rej0)+1)
+        Rinit <- length(dBH_rej0)
+        #Rinit <- ifelse(qval <= alpha0, length(dBH_rej0), length(dBH_rej0)+1)
 
         if ((qval <= alpha0 & is_safe) | qval <= alpha / max(avals)) {
             initrej = T
             ifrej = T
             expt = NA
-            return(c(ifrej, initrej, expt, Rinit))
+            weight = weight 
+            return(c(ifrej, initrej, expt, Rinit, weight))
+        }
+        
+        if (qval > qcap * alpha) {
+            initrej = F
+            ifrej = F
+            expt = NA
+            weight = weight
+            return(c(ifrej, initrej, expt, Rinit, weight))
         }
 
         initrej = F
@@ -127,13 +145,13 @@ dBH_mvgauss_qc_optimal <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * qvals[i] * weights[i] / n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * qval * weight / n / ntails, lower.tail = FALSE)
             list(knots = knots, thr = thr)
         })
 
         ## RBH function with alpha = alpha0
         res_alpha0 <- compute_knots_mvgauss(
-            zstat = ztat,
+            zstat = zstat,
             zminus = zminus,
             cor = cor,
             alpha = alpha0,
@@ -177,7 +195,7 @@ dBH_mvgauss_qc_optimal <- function(zvals,
             } else if (avals_type == "bonf"){
                 thra <- rep(1, length(nrejs))
             }
-            thr <- qnorm(thra * alpha0 * weights[i] / n / ntails, lower.tail = FALSE)
+            thr <- qnorm(thra * alpha0 * weight / n / ntails, lower.tail = FALSE)
             knots_lo <- head(knots, -1)
             knots_hi <- tail(knots, -1)
             nrejs <- nrejs + ((knots_lo + knots_hi) / 2 < thr)
@@ -200,21 +218,26 @@ dBH_mvgauss_qc_optimal <- function(zvals,
         }
         
         #return(c(ifrej, expt))
-        return(c(ifrej, initrej, expt, Rinit))
+        return(c(ifrej, initrej, expt, Rinit, weight))
     })
+    rownames(cand_info) <- c("ifrej", "ifrej_init", "exp", "Rinit", "weight")
 
     if (verbose){
         cat("\n")
     }
     
     ifrej <- as.logical(cand_info[1, ])
-    rejlist <- cand[which(ifrej)]
+    rejindex <- which(ifrej)
+    rejlist <- cand[rejindex]
+    rejthoCal <- cand_info[2, ]
     expt <- cand_info[3, ]
     Rinit <- cand_info[4, ]
+    weights <- cand_info[5, ]
 
     if (length(rejlist) == 0){
         return(list(rejs = numeric(0),
                     initrejs = numeric(0),
+                    rejthoCal = numeric(0),
                     cand = cand,
                     expt = expt,
                     safe = is_safe,
@@ -223,17 +246,19 @@ dBH_mvgauss_qc_optimal <- function(zvals,
 
     rejlist <- sort(rejlist)
     Rplus <- length(rejlist)
-    if (Rplus >= max(Rinit[which(ifrej)])){
+    if (Rplus >= max(Rinit[rejindex])){
         return(list(rejs = rejlist,
                     initrejs = rejlist,
+                    rejthoCal = rejthoCal,
                     cand = cand,
                     expt = expt,
+                    weights = weights,
                     safe = is_safe,
                     secBH = FALSE))
     }
 
     uvec <- runif(Rplus)
-    secBH_fac <- Rinit[which(ifrej)] / Rplus
+    secBH_fac <- Rinit[rejindex] / Rplus
     tdp <- uvec * secBH_fac
     nrejs <- nrejs_BH(tdp, 1)
     thr <- max(nrejs, 1) / Rplus
@@ -241,8 +266,10 @@ dBH_mvgauss_qc_optimal <- function(zvals,
     rejs <- rejlist[secrejs]
     return(list(rejs = rejs,
                 initrejs = rejlist,
+                rejthoCal = rejthoCal,
                 cand = cand,
                 expt = expt,
+                weights = weights,
                 safe = FALSE,
                 secBH = TRUE,
                 secBH_fac = secBH_fac))

@@ -1,0 +1,64 @@
+---
+title: "demo"
+author: "Mengqi LIn"
+date: "9/16/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Settings 
+### n_g : vector for number of hypothesis in each group. n_g = c(1000,2000)
+### mu1_g : vector for mu1 in each group. mu1_g = c(1.5, 4)
+### pi1_g : vector for pi1 in each group. pi1_g = c(0.1, 0.05)
+```{r}
+n_g = c(1000,1000) 
+mu1_g = c(2, 2)
+pi1_g = c(0.05, 0.1)
+pi0_g = 1-pi1_g
+alpha <- 0.05
+```
+
+
+```{r}
+lfdr_oracle <- function(z, pi0, mu1) {
+  pi0*dnorm(z)/(pi0*dnorm(z)+(1-pi0)*dnorm(z, mean = mu1))
+}
+
+lfdr_oracle1 <- function(z){
+  lfdr_oracle(z, pi0_g[1], mu1_g[1])
+}
+lfdr_oracle2 <- function(z){
+  lfdr_oracle(z, pi0_g[2], mu1_g[2])
+}
+
+
+g <- unique(groups)[1]
+zvals_g <- zvals[groups == g]
+par(mar = c(3,3,3,3))
+lfdrres1 <- locfdr(zvals[groups == 1], nulltype = 0, plot = 2)
+lfdrres2 <- locfdr(zvals[groups == 2], nulltype = 0, plot = 2)
+
+
+x1 <- lfdrres1$mat[,"x"]
+y1 <- lfdrres1$mat[,"fdrtheo"]
+
+x2 <- lfdrres2$mat[,"x"]
+y2 <- lfdrres2$mat[,"fdrtheo"]
+
+# Estimated (dashed) and true (solid), for groups 1 (black) and 2 (red)
+plot(lfdr_oracle1, from = -2, to = 6, col = "black", lwd = 3)
+lines(x1, y1, col = "black", lwd = 3, lty = "dashed")
+plot(lfdr_oracle2, from = -2, to = 6, col = "red", add = T, lwd = 3)
+lines(x2, y2, col = "red", lwd = 3, lty = "dashed")
+abline(h = c(0.29, lambda_alpha), lty = c("dashed","solid"))
+legend("bottomleft", lty = c(2,1,2,1),
+       legend = c("est1", "true1", "est2", "true2"), 
+       col = c("black", "black", "red", "red"), lwd = c(2,2,2,2))
+
+
+```
+

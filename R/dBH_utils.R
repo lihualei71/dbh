@@ -1,8 +1,10 @@
 zvals_pvals <- function(zvals, side){
-    if (side == "one"){
+    if (side == "one" | side == "right"){
         pnorm(zvals, lower.tail = FALSE)
     } else if (side == "two"){
         2 * pnorm(abs(zvals), lower.tail = FALSE)
+    } else {
+      stop("invalid side")
     }
 }
 
