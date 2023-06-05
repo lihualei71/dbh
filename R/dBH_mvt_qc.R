@@ -4,7 +4,7 @@ dBH_mvt_qc <- function(tvals, df,
                        side = c("one", "two"),
                        alpha = 0.05, gamma = NULL,
                        is_safe = FALSE,
-                       avals = NULL, 
+                       avals = NULL,
                        avals_type = c("BH", "geom", "bonf", "manual"),
                        geom_fac = 2,
                        eps = 0.05,
@@ -12,13 +12,17 @@ dBH_mvt_qc <- function(tvals, df,
                        verbose = FALSE){
     n <- length(tvals)
     alpha0 <- gamma * alpha
+    if (alpha0 > 1){
+        stop("gamma * alpha cannot be above 1.")
+    }
     ntails <- ifelse(side == "two", 2, 1)
     high <- qt(alpha * eps / n / ntails, df = df, lower.tail = FALSE)
+    high <- abs(high) # just in case high is negative
     pvals <- tvals_pvals(tvals, df, side)
     qvals <- qvals_BH_reshape(pvals, avals)
     obj <- RBH_init(pvals, qvals, alpha, alpha0,
                     avals, is_safe, qcap)
-    
+
     if (length(obj$cand) == 0){
         return(list(rejs = obj$init_rejlist,
                     initrejs = obj$init_rejlist,
@@ -42,14 +46,14 @@ dBH_mvt_qc <- function(tvals, df,
             cor <- Sigmafun(i)[-i]
         }
 
-        ## RBH function with alpha = qi        
+        ## RBH function with alpha = qi
         res_q <- compute_knots_mvt(
             tstat = tvals[i],
             tminus = tvals[-i],
             df = df,
             cor = cor,
             alpha = qvals[i],
-            side = side,            
+            side = side,
             low = low,
             high = high,
             avals = avals,
@@ -61,16 +65,16 @@ dBH_mvt_qc <- function(tvals, df,
             RBH <- rle(RBH)
             nrejs <- RBH$values
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
-            knots <- c(knots, re$high)        
+            knots <- c(knots, re$high)
             knots <- knots[cutinds]
-            if (knots[1] < 0){
+            if (knots[1] < 0 && side == "two"){
                 knots <- rev(abs(knots))
                 ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
                 thra <- nrejs
-            } else if (avals_type == "geom"){                
+            } else if (avals_type == "geom"){
                 thra <- find_ind_geom_avals(geom_fac, nrejs, "max")
                 ## 0 rejection should return aval = 0
                 thra[thra == 0] <- NA
@@ -95,7 +99,7 @@ dBH_mvt_qc <- function(tvals, df,
             df = df,
             cor = cor,
             alpha = alpha0,
-            side = side,            
+            side = side,
             low = low,
             high = high,
             avals = avals,
@@ -107,16 +111,16 @@ dBH_mvt_qc <- function(tvals, df,
             RBH <- rle(RBH)
             nrejs <- RBH$values
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
-            knots <- c(knots, re$high)        
+            knots <- c(knots, re$high)
             knots <- knots[cutinds]
-            if (knots[1] < 0){
+            if (knots[1] < 0 && side == "two"){
                 knots <- rev(abs(knots))
                 ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
             }
             if (avals_type == "BH"){
                 thra <- nrejs
-            } else if (avals_type == "geom"){                
+            } else if (avals_type == "geom"){
                 thra <- find_ind_geom_avals(geom_fac, nrejs, "max")
                 ## 0 rejection should return aval = 0
                 thra[thra == 0] <- NA
@@ -153,14 +157,14 @@ dBH_mvt_qc <- function(tvals, df,
         if (verbose){
             setTxtProgressBar(pb, id / ncands)
         }
-        
-        return(c(ifrej, expt))        
+
+        return(c(ifrej, expt))
     })
 
     if (verbose){
         cat("\n")
     }
-    
+
     ifrej <- as.logical(cand_info[1, ])
     rejlist <- which(ifrej == 1)
     rejlist <- c(obj$init_rejlist, obj$cand[rejlist])

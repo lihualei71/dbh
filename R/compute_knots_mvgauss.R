@@ -151,6 +151,9 @@ compute_knots_mvgauss <- function(zstat, zminus, cor,
         # Iterate over z coordinates to collect info on all potential knots
         for (k in 1:length(ids[[tail]])){
             i <- ids[[tail]][k]
+            if (coef2[i] == 0){
+                next
+            }
             if (navals > 1){
                 thrids <- max(1, thrid_lower[i]):min(navals, thrid_upper[i])
                 thr <- thresh[thrids]                # which thresholds this coordinate crosses
@@ -159,11 +162,15 @@ compute_knots_mvgauss <- function(zstat, zminus, cor,
                 thr <- thresh
             }
             sol <- linroots_mvgauss(coef1[i], coef2[i], thr)
-            knots[[k]] <- sol$roots * thrsgn[i]  # locations of z[1] where threshold crossed
-            nroots <- length(sol$roots)
-            hyp[[k]] <- rep(hypid[i], nroots)    # which coordinate crossed
-            posit[[k]] <- thrids[sol$posit] - 1  # which threshold crossed (R->C++ indexing)
-            sgn[[k]] <- thrsgn[i] * sol$sgn      # up- or down-crossing (is that quite right?)
+            inds <- sol$roots <= high & sol$roots >= low
+            m <- sum(inds)
+            if (m == 0){
+                next
+            }
+            knots[[k]] <- sol$roots[inds] * thrsgn[i]  # locations of z[1] where threshold crossed
+            hyp[[k]] <- rep(hypid[i], m)    # which coordinate crossed
+            posit[[k]] <- thrids[sol$posit[inds]] - 1  # which threshold crossed (R->C++ indexing)
+            sgn[[k]] <- thrsgn[i] * sol$sgn[inds]      # up- or down-crossing (is that quite right?)
         }
         knots <- unlist(knots, F, F)
         ord <- order(knots)             # This takes a long time too but is harder to get around

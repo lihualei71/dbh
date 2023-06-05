@@ -150,7 +150,7 @@ res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
 
 # Run dBH_1(\alpha) for two-sided tests
 res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
-                   gamma = 1, niter = 1, avals_type = "BH") 
+                   gamma = 1, niter = 1, avals_type = "BH")
 
 # Run dBH^2_1(\alpha) for one-sided tests
 alpha <- 0.05

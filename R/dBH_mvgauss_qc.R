@@ -4,7 +4,7 @@ dBH_mvgauss_qc <- function(zvals,
                            side = c("one", "two"),
                            alpha = 0.05, gamma = NULL,
                            is_safe = FALSE,
-                           avals = NULL, 
+                           avals = NULL,
                            avals_type = c("BH", "geom", "bonf", "manual"),
                            geom_fac = 2,
                            eps = 0.05,
@@ -12,8 +12,12 @@ dBH_mvgauss_qc <- function(zvals,
                            verbose = FALSE){
     n <- length(zvals)
     alpha0 <- gamma * alpha
-    ntails <- ifelse(side == "two", 2, 1)    
+    if (alpha0 > 1){
+        stop("gamma * alpha cannot be above 1.")
+    }
+    ntails <- ifelse(side == "two", 2, 1)
     high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
+    high <- abs(high) # just in case high is negative
     pvals <- zvals_pvals(zvals, side)
     qvals <- qvals_BH_reshape(pvals, avals)
     obj <- RBH_init(pvals, qvals, alpha, alpha0,
@@ -40,14 +44,14 @@ dBH_mvgauss_qc <- function(zvals,
         } else {
             cor <- Sigmafun(i)[-i]
         }
-        
+
         ## RBH function with alpha = qi
         res_q <- compute_knots_mvgauss(
             zstat = zvals[i],
             zminus = zvals[-i],
             cor = cor,
             alpha = qvals[i],
-            side = side,            
+            side = side,
             low = low,
             high = high,
             avals = avals,
@@ -59,9 +63,9 @@ dBH_mvgauss_qc <- function(zvals,
             RBH <- rle(RBH)
             nrejs <- RBH$values
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
-            knots <- c(knots, re$high)        
+            knots <- c(knots, re$high)
             knots <- knots[cutinds]
-            if (knots[1] < 0){
+            if (knots[1] < 0 && side == "two"){
                 knots <- rev(abs(knots))
                 ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
@@ -93,8 +97,8 @@ dBH_mvgauss_qc <- function(zvals,
             zminus = zvals[-i],
             cor = cor,
             alpha = alpha0,
-            side = side,            
-            low = low, 
+            side = side,
+            low = low,
             high = high,
             avals = avals,
             avals_type = avals_type,
@@ -105,9 +109,9 @@ dBH_mvgauss_qc <- function(zvals,
             RBH <- rle(RBH)
             nrejs <- RBH$values
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
-            knots <- c(knots, re$high)        
+            knots <- c(knots, re$high)
             knots <- knots[cutinds]
-            if (knots[1] < 0){
+            if (knots[1] < 0 && side == "two"){
                 knots <- rev(abs(knots))
                 ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
@@ -144,19 +148,22 @@ dBH_mvgauss_qc <- function(zvals,
             compute_cond_exp(abs(zvals[i]), re$knots, re$nrejs, re$thr, dist = pnorm)
         })
         expt <- sum(expt) * n
+        if (is.na(expt)){
+            browser()
+        }
         ifrej <- expt <= alpha
 
         if (verbose){
             setTxtProgressBar(pb, id / ncands)
         }
-        
+
         return(c(ifrej, expt))
     })
 
     if (verbose){
         cat("\n")
     }
-    
+
     ifrej <- as.logical(cand_info[1, ])
     rejlist <- which(ifrej)
     rejlist <- c(obj$init_rejlist, obj$cand[rejlist])

@@ -31,7 +31,7 @@
 #' \item (Not recommended) use \code{avals} while set \code{avals_type = "manual"}. This option allows any set of
 #' increasing a-values. However, it can be much slower than the recommended approach.
 #' }
-#' 
+#'
 #' @param zvals a vector of z-values. The marginal variances do not have to be 1.
 #' @param Sigma the covariance matrix. For very large m, it is preferable to use \code{Sigmafun} while leave
 #' \code{Sigma = NULL} as its default. See Details.
@@ -81,7 +81,7 @@
 #'
 #' @seealso
 #' \code{\link{dBH_mvt}}, \code{\link{dBH_lm}}
-#' 
+#'
 #' @examples
 #' \donttest{# Generate mu and Sigma for an AR process
 #' n <- 100
@@ -104,20 +104,20 @@
 #' alpha <- 0.05
 #' res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
 #'                    gamma = 1, niter = 1, avals_type = "BH")
-#' 
+#'
 #' # Run dBH_1(\alpha) for two-sided tests
 #' res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
-#'                    gamma = 1, niter = 1, avals_type = "BH") 
+#'                    gamma = 1, niter = 1, avals_type = "BH")
 #'
 #' # Run dBH^2_1(\alpha) for one-sided tests
 #' alpha <- 0.05
 #' res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
 #'                    gamma = 1, niter = 2, avals_type = "BH")
-#' 
+#'
 #' # Run dBH^2_1(\alpha) for one-sided tests
 #' res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
 #'                    gamma = 1, niter = 2, avals_type = "BH")
-#' 
+#'
 #' # Run dSU_1(\alpha) with the geometrically increasing a-values for one-sided tests
 #' res <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right", alpha = alpha,
 #'                    gamma = 1, niter = 1, avals_type = "geom", geom_fac = 2)
@@ -140,9 +140,9 @@
 #' res2 <- dBH_mvgauss(zvals = zvals, Sigma = Sigma, side = "right",
 #'                     alpha = alpha, gamma = NULL, niter = 1, avals_type = "BH")
 #' identical(res1, res2)
-#' 
+#'
 #' }
-#' 
+#'
 #' @export
 dBH_mvgauss <- function(zvals,
                         Sigma = NULL,
@@ -152,7 +152,7 @@ dBH_mvgauss <- function(zvals,
                         alpha = 0.05, gamma = NULL,
                         niter = 1,
                         tautype = "QC",
-                        avals = NULL, 
+                        avals = NULL,
                         avals_type = c("BH", "geom", "bonf", "manual"),
                         geom_fac = 2,
                         eps = 0.05,
@@ -167,7 +167,7 @@ dBH_mvgauss <- function(zvals,
 
     side <- side[1]
     avals_type <- avals_type[1]
-    tautype <- tautype[1]    
+    tautype <- tautype[1]
     n <- length(zvals)
     if (is.null(avals)){
         if (avals_type == "manual"){
@@ -200,20 +200,20 @@ dBH_mvgauss <- function(zvals,
 
     if (!is.null(Sigma) && any(diag(Sigma) != 1)){
         vars <- diag(Sigma)
-        Sigma <- cov2cor(Sigma)        
+        Sigma <- cov2cor(Sigma)
     } else {
         if (is.null(vars)){
             vars <- rep(1, n)
         }
     }
-    zvals <- zvals / sqrt(vars)    
+    zvals <- zvals / sqrt(vars)
     if (side == "left"){
         zvals <- -zvals
         side <- "one"
     } else if (side == "right"){
         side <- "one"
     }
-    
+
     if (niter == 1){
         if (tautype == "QC"){
             dBH_mvgauss_qc(zvals = zvals,

@@ -11,7 +11,7 @@ tvals_pvals <- function(tvals, df, side){
         pt(tvals, df = df, lower.tail = FALSE)
     } else if (side == "two"){
         2 * pt(abs(tvals), df = df, lower.tail = FALSE)
-    }        
+    }
 }
 
 nrejs_BH_reshape <- function(pvals, alpha, avals = 1:length(pvals)){
@@ -66,12 +66,12 @@ compute_RCV <- function(x, thresh, avals){
 
 compute_cond_exp <- function(stat, knots, nrejs, thr, dist){
     right_knots <- tail(knots, -1)
-    if (length(thr) != length(right_knots)){
-        browser()
-    }
+    #if (length(thr) != length(right_knots)){
+    #    browser()
+    #}
     inds <- which(thr <= right_knots)
     left_knots <- knots[inds]
-    left_knots <- pmax(thr[inds], left_knots)    
+    left_knots <- pmax(thr[inds], left_knots)
     tmp <- (dist(right_knots[inds]) - dist(left_knots)) / nrejs[inds]
     sum(tmp)
 }
@@ -108,10 +108,10 @@ fill_int_general <- function(x, vals){
 ## Find max{i: a_i <= target} or min{i: a_i >= target}
 find_ind_geom_avals <- function(gamma, target, type){
     if (type == "max"){
-        inds <- rep(0, length(target))        
+        inds <- rep(0, length(target))
         inds[target >= 1] <- floor(log((gamma - 1) * (target[target >= 1] - 1) + 1, gamma)) + 1
     } else if (type == "min"){
-        inds <- rep(1, length(target))        
+        inds <- rep(1, length(target))
         inds[target >= 2] <- ceiling(log((gamma - 1) * (target[target >= 2] - 2) + 1 + 1e-10, gamma)) + 1
         inds[target < 1] <- 0
     }
@@ -137,7 +137,7 @@ RBH_init <- function(pvals, qvals, alpha, alpha0,
     Rinit <- rep(length(dBH_rej0) + 1, n)
     Rinit[dBH_rej0] <- Rinit[dBH_rej0] - 1
 
-    init_rejlist <- which(qvals <= alpha / max(avals))    
+    init_rejlist <- which(qvals <= alpha / max(avals))
     if (is_safe){
         init_rejlist <- union(dBH_rej0, init_rejlist)
     }
@@ -147,7 +147,7 @@ RBH_init <- function(pvals, qvals, alpha, alpha0,
     if (length(tmp) > 0){
         cand <- cand[-tmp]
     }
-    
+
     return(list(Rinit = Rinit, cand = cand,
                 dBH_rej0 = dBH_rej0,
                 init_rejlist = init_rejlist,
@@ -155,8 +155,13 @@ RBH_init <- function(pvals, qvals, alpha, alpha0,
 }
 
 expand_piecewise_const <- function(x, y, extrax){
-    high <- tail(x, 1)
-    x <- c(head(x, -1), extrax)
+    if (tail(x, 1) > head(x, 1)){
+        high <- tail(x, 1)
+        x <- c(head(x, -1), extrax)
+    } else {
+        high <- head(x, 1)
+        x <- c(tail(x, -1), extrax)
+    }
     ord <- order(x)
     tmp <- c(rep(1, length(y)), rep(0, length(extrax)))[ord]
     x <- c(x[ord], high)
@@ -204,7 +209,7 @@ lingrid <- function(low, high, gridsize, side){
 }
 
 lm_mvt <- function(y, X, subset, intercept){
-    n <- nrow(X)    
+    n <- nrow(X)
     if (intercept){
         X <- cbind(X, rep(1, n))
     }

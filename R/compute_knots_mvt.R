@@ -44,13 +44,13 @@ thresh_bounds_mvt <- function(coef1, coef2, low, high){
 #   sgn:    n-vector: sgn = 1 means upcrossing, sgn = -1 means downcrossing (??is this right??)
 #   posit:  n-vector: which of the n thresholds is crossed at each root
 quadroots_mvt <- function(a, b, thresh){
-    n <- length(thresh)    
+    n <- length(thresh)
     if (b == 0){
         roots <- sqrt(thresh^2 / a^2 - 1)
         roots <- c(roots, -roots)
         sgn <- c(rep(1, n), rep(-1, n))
         posit <- c(1:n, 1:n)
-        return(list(roots = roots, sgn = sgn, posit = posit))        
+        return(list(roots = roots, sgn = sgn, posit = posit))
     }
     numer1 <- b * thresh
     numer2 <- a * sqrt(b^2 + thresh^2 - a^2)
@@ -102,7 +102,7 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
                               avals, avals_type, geom_fac
                               ){
     n <- length(tminus) + 1
-    navals <- length(avals)    
+    navals <- length(avals)
     if (side == "two"){
         alpha <- alpha / 2
     }
@@ -158,7 +158,7 @@ compute_knots_mvt <- function(tstat, tminus, df, cor,
     thrsgn <- thrsgn[ids]
 
     # Compute bounding box of z[i] (and -z[i] for 2-sided), as z[1] varies
-    #      between low and high (and -high and -low, for 2-sided)    
+    #      between low and high (and -high and -low, for 2-sided)
     thr_bounds <- thresh_bounds_mvt(coef1, coef2, low, high)
     if (navals > 1){
         thrid_upper <- floor(pt(thr_bounds$lower * sqdf, df = df, lower.tail = FALSE) * n / alpha - 1e-15)

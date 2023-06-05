@@ -13,12 +13,12 @@ dBH_mvgauss_qc_grid <- function(zvals,
                                 exptcap = 0.9,
                                 verbose = FALSE){
     n <- length(zvals)
-    alpha0 <- gamma * alpha
     ntails <- ifelse(side == "two", 2, 1)
     high <- qnorm(alpha * eps / n / ntails, lower.tail = FALSE)
+    high <- abs(high) # just in case high is negative
     pvals <- zvals_pvals(zvals, side)
     qvals <- qvals_BH_reshape(pvals, avals)
-    
+
     params_root <- list(Sigma = Sigma,
                         Sigmafun = Sigmafun,
                         side = side,
@@ -43,8 +43,8 @@ dBH_mvgauss_qc_grid <- function(zvals,
             init_rejlist <- union(cand[res_init$expt <= exptcap * alpha], init_rejlist)
         }
     }
-    cand <- setdiff(cand, init_rejlist)    
-    
+    cand <- setdiff(cand, init_rejlist)
+
     if (length(cand) == 0){
         return(list(rejs = init_rejlist,
                     initrejs = init_rejlist,
@@ -66,7 +66,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
         } else {
             cor <- Sigmafun(i)[-i]
         }
-        s <- zvals[-i] - cor * zvals[i]        
+        s <- zvals[-i] - cor * zvals[i]
 
         ## RBH function with alpha = qi
         res_q <- compute_knots_mvgauss(
@@ -74,7 +74,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
             zminus = zvals[-i],
             cor = cor,
             alpha = qvals[i],
-            side = side,            
+            side = side,
             low = low,
             high = high,
             avals = avals,
@@ -86,9 +86,9 @@ dBH_mvgauss_qc_grid <- function(zvals,
             RBH <- rle(RBH)
             nrejs <- RBH$values
             cutinds <- c(1, cumsum(RBH$lengths) + 1)
-            knots <- c(knots, re$high)        
+            knots <- c(knots, re$high)
             knots <- knots[cutinds]
-            if (knots[1] < 0){
+            if (knots[1] < 0 && side == "two"){
                 knots <- rev(abs(knots))
                 ## This requires the null distribution to be symmetric
                 nrejs <- rev(nrejs)
@@ -131,7 +131,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
         prob <- sapply(grids, function(int){
             diff(pnorm(int))
         })
-	if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
+	      if (length(prob) < 1 || !is.numeric(prob) || sum(prob) * n <= alpha){
             return(c(1, NA))
         }
 
@@ -147,11 +147,11 @@ dBH_mvgauss_qc_grid <- function(zvals,
             sum_nknots <- tail(cumsum_nknots, 1)
             cumsum_nknots <- c(0, head(cumsum_nknots, -1))
         }
-        
+
         ## Create grid for the denominator
         expt <- sapply(1:length(grids), function(k){
             grid <- grids[[k]]
-            prob <- diff(pnorm(grid))            
+            prob <- diff(pnorm(grid))
             ex <- sapply(1:(length(grid) - 1), function(j){
                 pr <- prob[j]
                 if (any(grid > 0)){
@@ -165,7 +165,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
                 res <- do.call(dBH_mvgauss_qc, params)
                 nrejs <- length(res$initrejs) + !(i %in% res$initrejs)
                 if (verbose){
-                    tmp <- id - 1 + (j + cumsum_nknots[k]) / sum_nknots 
+                    tmp <- id - 1 + (j + cumsum_nknots[k]) / sum_nknots
                     setTxtProgressBar(pb, tmp / ncands)
                 }
                 return(pr / nrejs)
@@ -180,12 +180,12 @@ dBH_mvgauss_qc_grid <- function(zvals,
     if (verbose){
         cat("\n")
     }
-    
+
     ifrej <- as.logical(cand_info[1, ])
     rejlist <- which(ifrej)
     rejlist <- c(init_rejlist, cand[rejlist])
     expt <- cand_info[2, ]
-    
+
     if (length(rejlist) == 0){
         return(list(rejs = numeric(0),
                     initrejs = numeric(0),
@@ -199,7 +199,7 @@ dBH_mvgauss_qc_grid <- function(zvals,
     Rplus <- length(rejlist)
     if (Rplus >= max(Rinit[rejlist])){
         return(list(rejs = rejlist,
-                    initrejs = rejlist, 
+                    initrejs = rejlist,
                     cand = cand,
                     expt = expt,
                     safe = res_init$safe,
